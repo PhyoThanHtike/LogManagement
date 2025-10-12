@@ -1,0 +1,173 @@
+// schema.prisma - Updated version
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String   @id @default(cuid())
+  email         String   @unique
+  password      String
+  name          String
+  role          Role     @default(USER)
+  status        Status   @default(ACTIVE)
+  loginAttempts Int      @default(0)
+  tenant        Tenant
+  isVerified    Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  alerts      Alert[]
+
+  @@map("users")
+}
+
+model Log {
+  id              String   @id @default(cuid())
+  timestamp       DateTime
+  tenant          Tenant
+  source          LogSources
+  vendor          String?
+  product         String?
+  eventType       String
+  eventSubtype    String?
+  severity        Int?     // 0-10
+  
+  // Network info
+  srcIp           String?
+  srcPort         Int?
+  dstIp           String?
+  dstPort         Int?
+  protocol        String?
+  
+  // User/system info
+  user            String?
+  host            String?
+  process         String?
+  url             String?
+  httpMethod      String?
+  statusCode      String?
+  
+  // Rule info
+  ruleName        String?
+  ruleId          String?
+  
+  // Cloud context
+  cloudAccountId  String?  @map("cloud_account_id")
+  cloudRegion     String?  @map("cloud_region")
+  cloudService    String?  @map("cloud_service")
+  
+  // Additional fields for better normalization
+  action          Action?
+  reason          String?
+  
+  // Raw data and metadata
+  raw             Json?
+  tags            String[]
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  alerts      Alert[]
+
+  @@map("logs")
+}
+
+model AlertRule {
+  id            String     @id @default(cuid())
+  tenant        Tenant
+  ruleName      String
+  logSource     LogSources
+  severity      Int
+  isActive      Boolean    @default(true)
+  description   String?
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+
+  alerts        Alert[]
+
+  @@map("alert_rules")
+}
+
+model Alert {
+  id            String    @id @default(cuid())
+  tenant        Tenant
+  alertRuleId   String
+  logId         String
+  ruleName      String
+  severity      Int
+  description   String?
+  isResolved    Boolean   @default(false)
+  resolvedAt    DateTime?
+  createdAt     DateTime  @default(now())
+
+  alertRule     AlertRule @relation(fields: [alertRuleId], references: [id], onDelete: Cascade)
+  log           Log       @relation(fields: [logId], references: [id], onDelete: Cascade)
+  user          User?     @relation(fields: [userId], references: [id])
+  userId        String?
+
+  @@map("alerts")
+}
+
+model OtpRequest {
+  id        String   @id @default(cuid())
+  email     String
+  otpCode   String
+  purpose   OTPPurpose
+  expiresAt DateTime
+  attempts  Int      @default(0)
+  isUsed    Boolean  @default(false)
+  createdAt DateTime @default(now())
+  
+  @@map("otp_requests")
+}
+
+enum Role {
+  ADMIN
+  USER
+}
+
+enum Tenant {
+  TENANT1
+  TENANT2
+  TENANT3
+  TENANT4
+}
+
+enum Status {
+  ACTIVE
+  RESTRICTED
+  SUSPENDED
+}
+
+enum OTPPurpose {
+  REGISTRATION
+  PASSWORD_RESET
+  EMAIL_VERIFICATION
+}
+
+enum LogSources {
+  FIREWALL
+  API
+  CROWDSTRIKE
+  AWS
+  M365
+  AD
+  NETWORK
+}
+
+enum Action {
+  ALLOW
+  DENY
+  CREATE
+  DELETE
+  UPDATE
+  ALERT
+  LOGIN
+  QUARANTINE
+  BLOCK
+}
