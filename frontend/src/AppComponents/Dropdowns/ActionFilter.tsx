@@ -1,4 +1,4 @@
-
+// src/components/filters/ActionFilter.tsx
 import {
   Select,
   SelectContent,
@@ -7,33 +7,39 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-interface TenantDropdownProps {
+interface ActionFilterProps {
   value: string;
   onValueChange: (value: string) => void;
   disabled?: boolean;
 }
 
-const TenantDropdown = ({ value, onValueChange, disabled = false }: TenantDropdownProps) => {
-  const tenants = [
-    { value: "TENANT1", label: "Tenant 1" },
-    { value: "TENANT2", label: "Tenant 2" },
-    { value: "TENANT3", label: "Tenant 3" },
-    { value: "TENANT4", label: "Tenant 4" },
+const ActionFilter = ({ value, onValueChange, disabled = false }: ActionFilterProps) => {
+  const actions = [
+    { value: "ALL", label: "All Actions" },
+    { value: "ALLOW", label: "Allow" },
+    { value: "DENY", label: "Deny" },
+    { value: "CREATE", label: "Create" },
+    { value: "DELETE", label: "Delete" },
+    { value: "UPDATE", label: "Update" },
+    { value: "ALERT", label: "Alert" },
+    { value: "LOGIN", label: "Login" },
+    { value: "QUARANTINE", label: "Quarantine" },
+    { value: "BLOCK", label: "Block" },
   ];
 
   return (
     <Select value={value} onValueChange={onValueChange} disabled={disabled}>
       <SelectTrigger className="w-full bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-3 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
-        <SelectValue placeholder="Select a tenant" />
+        <SelectValue placeholder="Select action" />
       </SelectTrigger>
       <SelectContent className="bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600">
-        {tenants.map((tenant) => (
+        {actions.map((action) => (
           <SelectItem
-            key={tenant.value}
-            value={tenant.value}
+            key={action.value}
+            value={action.value}
             className="text-gray-900 dark:text-gray-100 focus:bg-gray-100 dark:focus:bg-gray-600"
           >
-            {tenant.label}
+            {action.label}
           </SelectItem>
         ))}
       </SelectContent>
@@ -41,4 +47,4 @@ const TenantDropdown = ({ value, onValueChange, disabled = false }: TenantDropdo
   );
 };
 
-export default TenantDropdown;
+export default ActionFilter;

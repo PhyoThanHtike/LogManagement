@@ -1,4 +1,4 @@
-import { forgotPassword, resetPassword } from "@/apiEndpoints/Auth";
+import { resetPassword } from "@/apiEndpoints/Auth";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -13,7 +13,7 @@ import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
-type Purpose = "REGISTRATION" | "PASSWORD_RESET";
+// type Purpose = "REGISTRATION" | "PASSWORD_RESET";
 
 interface resetPasswordData {
   email: string;

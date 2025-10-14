@@ -6,8 +6,10 @@ import { toast } from "sonner";
 import { motion } from "framer-motion";
 import { FcGoogle } from "react-icons/fc";
 import { ThemeToggle } from "@/context/ThemeToggle";
-import TenantDropdown from "@/AppComponents/TenantDropdown";
+import TenantDropdown from "@/AppComponents/Dropdowns/TenantDropdown";
 import logo from "../../Logify.png";
+import { useUserStore } from "@/store/UserStore";
+import { useFilterStore } from "@/store/FilterStore";
 
 type authMode = "login" | "signup";
 
@@ -22,6 +24,9 @@ interface SignupFormData extends LoginFormData {
   email: string;
   password: string;
 }
+
+const setUser = useUserStore.getState().setUser;
+const setTenant = useFilterStore.getState().setTenant;
 
 const Auth = () => {
   const [mode, setMode] = useState<authMode>("login");
@@ -72,19 +77,23 @@ const Auth = () => {
         const response = await Login(loginData);
         if ("user" in response) {
           toast.success("Login Successful");
+          setUser(response.user);
+          if (response.user.role !== "ADMIN") {
+            setTenant(response.user.tenant);
+          }
           navigate("/");
         } else {
           toast.error(response.message);
         }
       } else {
         console.log(signUpData);
-        // const response = await SignUp(signUpData);
-        // if (response.success) {
-        //   toast.success(response.message);
-        //   navigate("/verifyOTP/REGISTRATION", { state: { email: signUpData.email } });
-        // } else {
-        //   toast.error(response.message);
-        // }
+        const response = await SignUp(signUpData);
+        if (response.success) {
+          toast.success(response.message);
+          navigate("/verifyOTP/REGISTRATION", { state: { email: signUpData.email } });
+        } else {
+          toast.error(response.message);
+        }
 
         // Pass email to verify OTP page
         navigate("/verifyOTP/REGISTRATION", {

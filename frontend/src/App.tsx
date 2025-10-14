@@ -25,36 +25,10 @@ const router = createBrowserRouter([
     element: <MainLayout />, // <Outlet /> renders here
     errorElement: <ErrorPage />,
     children: [
-      // {
-      //   element: (
-      //       <ProtectRoute>
-      //         <HomeLayout />
-      //       </ProtectRoute>
-      //   ),
-      //   children: [
-      //     { index: true, element: <Dashboard/> },
-      //     { path: "products", element: <Products/> },
-      //     {
-      //       path: "products/:id",
-      //       element: <ProductDetail />,
-      //     },
-      //     { path: "order", element: <Order/> },
-      //     {
-      //       path: "order/form/:id",
-      //       element: <OrderForm />,
-      //     },
-      //     { path: "history", element: <History/> },
-      //     { path: "profile", element: <Profile/> },
-      //   ],
-      // },
       {
         path: "dashboard",
         element: <Dashboard />,
       },
-      // {
-      //   path: "auth/success",
-      //   element: <AuthSuccess/>,
-      // }
     ],
   },
   {
