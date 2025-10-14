@@ -7,6 +7,7 @@ import { motion } from "framer-motion";
 import { FcGoogle } from "react-icons/fc";
 import { ThemeToggle } from "@/context/ThemeToggle";
 import TenantDropdown from "@/AppComponents/TenantDropdown";
+import logo from "../../Logify.png";
 
 type authMode = "login" | "signup";
 
@@ -84,10 +85,10 @@ const Auth = () => {
         // } else {
         //   toast.error(response.message);
         // }
-        
+
         // Pass email to verify OTP page
-        navigate("/verifyOTP/REGISTRATION", { 
-          state: { email: signUpData.email } 
+        navigate("/verifyOTP/REGISTRATION", {
+          state: { email: signUpData.email },
         });
       }
     } catch (err) {
@@ -105,8 +106,10 @@ const Auth = () => {
   const currentFormData = mode === "login" ? loginData : signUpData;
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-r from-green-50 via-purple-50 to-blue-50 
-    dark:from-neutral-800 dark:via-neutral-900 dark:to-neutral-800 transition-colors duration-300">
+    <div
+      className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-r from-green-50 via-purple-50 to-blue-50 
+    dark:from-neutral-800 dark:via-neutral-900 dark:to-neutral-800 transition-colors duration-300"
+    >
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -114,7 +117,9 @@ const Auth = () => {
         className="w-full max-w-md"
       >
         <div className="bg-gray-50 dark:bg-stone-900 rounded-2xl shadow-xl overflow-hidden border border-gray-200  p-8 transition-colors duration-300">
-          <div className="flex justify-end"><ThemeToggle/></div>
+          <div className="flex justify-end">
+            <ThemeToggle />
+          </div>
           {/* Logo with animation */}
           <motion.div
             initial={{ scale: 0.9 }}
@@ -122,6 +127,15 @@ const Auth = () => {
             transition={{ type: "spring", stiffness: 300 }}
             className="flex items-center justify-center mb-8"
           >
+            {/* <img
+              src={
+                // user.image
+                "https://www.pngmart.com/files/7/Green-Energy-PNG-Photos.png"
+              }
+              alt="Logo"
+              className="w-12"
+              referrerPolicy="no-referrer"
+            /> */}
             <span className="text-3xl font-bold text-gray-900 dark:text-white">
               <motion.span
                 className="text-green-700 dark:text-emerald-700"
@@ -135,9 +149,9 @@ const Auth = () => {
                   repeatDelay: 3,
                 }}
               >
-                L
+                Log
               </motion.span>
-              ogger
+              ify
             </span>
           </motion.div>
 

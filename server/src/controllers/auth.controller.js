@@ -123,7 +123,7 @@ export const login = async (req, res) => {
     if (!user) {
       return res.status(400).json({
         success: false,
-        message: "Invalid credentials",
+        message: "Email not found",
       });
     }
 
@@ -150,7 +150,7 @@ export const login = async (req, res) => {
 
       return res.status(400).json({
         success: false,
-        message: "Invalid credentials",
+        message: "Wrong password",
       });
     }
 
