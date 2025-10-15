@@ -132,7 +132,7 @@ const LogsTable = ({ logs, userRole, onDeleteLog, isLoading = false }: LogsTable
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.3 }}
-      className='py-6'
+      className=''
     >
       <div className="rounded-md border">
         <Table>

@@ -6,7 +6,9 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "nodemon src/server.js",
-    "otp": "nodemon src/jobs/worker/otpWorker.js"
+    "otp": "nodemon src/jobs/worker/otpWorker.js",
+    "seed": "node src/seeds/seed.js",
+    "db:seed": "node src/seed.js"
   },
   "keywords": [],
   "author": "",

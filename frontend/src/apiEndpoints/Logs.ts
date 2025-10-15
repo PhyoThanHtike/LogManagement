@@ -34,10 +34,10 @@ export const getLogs = async (data: queryData) => {
 
     if (data.tenant) params.tenant = data.tenant;
     if (data.keyword) params.keyword = data.keyword;
-    if (data.action && data.action !== 'ALL') params.action = data.action;
-    if (data.source && data.source !== 'ALL') params.source = data.source;
+    if (data.action && data.action !== "ALL") params.action = data.action;
+    if (data.source && data.source !== "ALL") params.source = data.source;
     if (data.severity) params.severity = data.severity;
-    if (data.date && data.date !== 'ALL') params.date = data.date;
+    if (data.date && data.date !== "ALL") params.date = data.date;
     if (data.startDate) params.startDate = data.startDate;
     if (data.endDate) params.endDate = data.endDate;
     if (data.ts) params.ts = data.ts;
@@ -49,6 +49,21 @@ export const getLogs = async (data: queryData) => {
   } catch (error) {
     console.error("Error fetching logs:", error);
     throw error;
+  }
+};
+
+export const getLogsAndAlerts = async (tenant: string) => {
+  try {
+    const response = await axiosInstance.get("/api/user/get-logs-alerts", {
+      params: {
+        tenant: tenant,
+      },
+    });
+    console.log(tenant);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching logs:", error);
+    throw error; // Re-throw the error so the caller can handle it
   }
 };
 

@@ -10,19 +10,20 @@ export class AlertService {
 
   static async getAlertRules(tenant, filters = {}) {
     const where = { tenant };
-    
+
     if (filters.logSource) where.logSource = filters.logSource;
-    if (filters.isActive !== undefined) where.isActive = filters.isActive === 'true';
+    if (filters.isActive !== undefined)
+      where.isActive = filters.isActive === "true";
 
     return await prisma.alertRule.findMany({
-      where,
-      orderBy: { createdAt: 'desc' },
-      include: {
-        alerts: {
-          take: 5,
-          orderBy: { createdAt: 'desc' },
-        },
-      },
+    //   where,
+      orderBy: { createdAt: "desc" },
+      //   include: {
+      //     alerts: {
+      //       take: 5,
+      //       orderBy: { createdAt: 'desc' },
+      //     },
+      //   },
     });
   }
 
@@ -56,7 +57,7 @@ export class AlertService {
     });
 
     const createdAlerts = [];
-    
+
     for (const rule of matchingRules) {
       const alert = await prisma.alert.create({
         data: {
@@ -72,7 +73,7 @@ export class AlertService {
           alertRule: true,
         },
       });
-      
+
       createdAlerts.push(alert);
     }
 
@@ -81,11 +82,11 @@ export class AlertService {
 
   static async getAlerts(tenant, filters = {}, page = 1, limit = 50) {
     const skip = (page - 1) * limit;
-    
+
     const where = { tenant };
-    
+
     if (filters.isResolved !== undefined) {
-      where.isResolved = filters.isResolved === 'true';
+      where.isResolved = filters.isResolved === "true";
     }
     if (filters.severity) {
       where.severity = { gte: parseInt(filters.severity) };
@@ -98,7 +99,7 @@ export class AlertService {
           log: true,
           alertRule: true,
         },
-        orderBy: { createdAt: 'desc' },
+        orderBy: { createdAt: "desc" },
         skip,
         take: limit,
       }),
@@ -124,5 +125,33 @@ export class AlertService {
         resolvedAt: new Date(),
       },
     });
+  }
+
+  static async getDailyAlertsCountPast60Days(filters = {}) {
+    const { tenant } = filters;
+
+    const endDate = new Date();
+    const startDate = new Date();
+    startDate.setDate(endDate.getDate() - 60);
+
+    const where = {
+      tenant,
+      createdAt: {
+        gte: startDate,
+        lte: endDate,
+      },
+    };
+
+    const alertsCount = await prisma.alert.groupBy({
+      by: ["createdAt"],
+      _count: { id: true },
+      where,
+      orderBy: { createdAt: "asc" },
+    });
+
+    return alertsCount.map((entry) => ({
+      date: entry.createdAt.toISOString().split("T")[0],
+      alerts: entry._count.id,
+    }));
   }
 }

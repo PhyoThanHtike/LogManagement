@@ -81,7 +81,7 @@ const Auth = () => {
           if (response.user.role !== "ADMIN") {
             setTenant(response.user.tenant);
           }
-          navigate("/");
+          navigate("/dashboard");
         } else {
           toast.error(response.message);
         }

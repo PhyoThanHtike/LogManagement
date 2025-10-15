@@ -173,25 +173,18 @@ const Navbar = () => {
                       </p>
                     </div>
                     <Link
-                      to="/profile"
+                      to="/dashboard"
                       className="block px-4 py-3 text-sm text-gray-300 hover:bg-gray-700/50 transition-all"
                       onClick={() => setIsDropdownOpen(false)}
                     >
-                      View Profile
+                      Dashboard
                     </Link>
                     <Link
-                      to="/profile/edit"
+                      to="/management"
                       className="block px-4 py-3 text-sm text-gray-300 hover:bg-gray-700/50 transition-all"
                       onClick={() => setIsDropdownOpen(false)}
                     >
-                      Edit Profile
-                    </Link>
-                    <Link
-                      to="/room"
-                      className="block px-4 py-3 text-sm text-gray-300 hover:bg-gray-700/50 transition-all"
-                      onClick={() => setIsDropdownOpen(false)}
-                    >
-                      My Rooms
+                      Management
                     </Link>
                     <button
                       className="flex items-center px-4 py-3 text-sm text-gray-300 hover:bg-gray-700/50 w-full transition-all"

@@ -130,7 +130,7 @@ const VerifyOTP = () => {
         toast.success(response.message);        
         // Navigate based on purpose
         if (verifyData.purpose === 'REGISTRATION') {
-          navigate('/');
+          navigate('/dashboard');
         } else {
           navigate('/resetPassword', {
           state: { email: verifyData.email },

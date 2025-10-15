@@ -16,6 +16,8 @@ import SummaryChart from "@/AppComponents/Charts/SummaryChart";
 import DateFilter from "@/AppComponents/Dropdowns/DateFilter";
 import LogsTable from "@/AppComponents/Table/LogsTable";
 import { Card, CardHeader } from "@/components/ui/card";
+import { useLogsAlertsQuery } from "@/hooks/useLogsAlerts";
+import LogsAlertsTrendChart from "@/AppComponents/Charts/LogsAlertsChart";
 
 const Dashboard = () => {
   // Initialize search params synchronization
@@ -31,6 +33,8 @@ const Dashboard = () => {
     isLoading: logsLoading,
     refetch: refetchLogs,
   } = useLogsQuery();
+  const { data: logsAlertsData, isLoading: logsAlertsLoading } =
+    useLogsAlertsQuery();
 
   // Initialize tenant based on user role when component mounts
   useEffect(() => {
@@ -52,6 +56,22 @@ const Dashboard = () => {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 px-6">
       <div className="max-w-full mx-auto">
+        {/* Logs alerts charts */}
+        <div>
+          {logsAlertsLoading ? (
+            <div className="animate-pulse">
+              <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded mb-2"></div>
+              <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded mb-2"></div>
+              <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded"></div>
+            </div>
+          ) : (
+            logsAlertsData && (
+              <div className="space-y-3">
+                <LogsAlertsTrendChart rawData={logsAlertsData} />
+              </div>
+            )
+          )}
+        </div>
         {/* <SummaryChart data={summaryData.data}/> */}
         <div>
           {summaryLoading ? (
@@ -153,6 +173,8 @@ const Dashboard = () => {
             logsData && <LogsTable userRole={user?.role} logs={logsData.data} />
           )}
         </Card>
+
+        
       </div>
     </div>
   );

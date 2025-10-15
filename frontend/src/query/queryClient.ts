@@ -1,15 +1,24 @@
 // src/query/queryClient.ts
 import { QueryClient } from "@tanstack/react-query";
 
+// ✅ Create a pure, reusable QueryClient instance
 export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       retry: 2, // retry twice on failure
-      retryDelay: attemptIndex => Math.min(1000 * 2 ** attemptIndex, 30000), // exp backoff
+      retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000), // exponential backoff
       refetchOnWindowFocus: false,
-      staleTime: 1000 * 60 * 2, // 2 minutes by default (tweak per-query)
-      cacheTime: 1000 * 60 * 10, // 10 minutes
-      useErrorBoundary: false,
+      staleTime: 1000 * 60 * 2, // 2 minutes before data considered stale
+      gcTime: 1000 * 60 * 10, // 10 minutes cache garbage collection
     },
   },
 });
+
+// ✅ Utility to invalidate logs, alerts, and summary queries globally
+export const invalidateLogsAlerts = async () => {
+  await Promise.all([
+    queryClient.invalidateQueries({ queryKey: ["logs"], exact: false }),
+    queryClient.invalidateQueries({ queryKey: ["alerts"], exact: false }),
+    queryClient.invalidateQueries({ queryKey: ["summary"], exact: false }),
+  ]);
+};

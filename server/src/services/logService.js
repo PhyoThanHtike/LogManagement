@@ -1,6 +1,7 @@
 // services/logService.js
 import { LogSources } from "@prisma/client";
 import prisma from "../utils/database.js";
+import { Prisma } from "@prisma/client";
 
 export class LogService {
   static async createLog(logData) {
@@ -13,7 +14,10 @@ export class LogService {
     try {
       const where = this.buildWhereClause(filters);
 
-      console.log("Final WHERE clause for query:", JSON.stringify(where, null, 2));
+      console.log(
+        "Final WHERE clause for query:",
+        JSON.stringify(where, null, 2)
+      );
 
       const logs = await prisma.log.findMany({
         where,
@@ -220,5 +224,75 @@ export class LogService {
     }
 
     return where;
+  }
+
+  static async getDailyLogsCountPast60Days(filters = {}) {
+    const where = this.buildWhereClause(filters);
+
+    const endDate = new Date();
+    const startDate = new Date();
+    startDate.setDate(endDate.getDate() - 60);
+
+    where.createdAt = {
+      gte: startDate,
+      lte: endDate,
+    };
+
+    const logsCount = await prisma.log.groupBy({
+      by: ["createdAt"],
+      _count: { id: true },
+      where,
+      orderBy: { createdAt: "asc" },
+    });
+
+    // Group by date instead of exact timestamp
+    const dailyCounts = {};
+    logsCount.forEach((entry) => {
+      const dateKey = entry.createdAt.toISOString().split("T")[0];
+      if (!dailyCounts[dateKey]) {
+        dailyCounts[dateKey] = 0;
+      }
+      dailyCounts[dateKey] += entry._count.id;
+    });
+
+    return Object.entries(dailyCounts).map(([date, logs]) => ({
+      date,
+      logs,
+    }));
+  }
+
+  static async getDailyAlertsCountPast60Days(filters = {}) {
+    const where = this.buildWhereClause(filters);
+
+    const endDate = new Date();
+    const startDate = new Date();
+    startDate.setDate(endDate.getDate() - 60);
+
+    where.createdAt = {
+      gte: startDate,
+      lte: endDate,
+    };
+
+    const alertsCount = await prisma.alert.groupBy({
+      by: ["createdAt"],
+      _count: { id: true },
+      where,
+      orderBy: { createdAt: "asc" },
+    });
+
+    // Group by date instead of exact timestamp
+    const dailyCounts = {};
+    alertsCount.forEach((entry) => {
+      const dateKey = entry.createdAt.toISOString().split("T")[0];
+      if (!dailyCounts[dateKey]) {
+        dailyCounts[dateKey] = 0;
+      }
+      dailyCounts[dateKey] += entry._count.id;
+    });
+
+    return Object.entries(dailyCounts).map(([date, alerts]) => ({
+      date,
+      alerts,
+    }));
   }
 }

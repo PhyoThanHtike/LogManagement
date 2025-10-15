@@ -1,5 +1,6 @@
 // controllers/adminController.js
 import { LogService } from "../services/logService.js";
+import { AlertService } from "../services/alertService.js";
 
 export const getLogs = async (req, res) => {
   try {
@@ -98,6 +99,72 @@ export const getSummary = async (req, res) => {
       success: false,
       message: "Internal Server Error",
       error: error.message
+    });
+  }
+};
+
+export const getLogsAndAlerts = async (req, res) => {
+  try {
+    const { tenant } = req.query;
+
+
+    // Build filters object (consistent with your buildWhereClause)
+    const filters = { tenant };
+
+        // Remove undefined or "ALL_TENANTS" values
+    Object.keys(filters).forEach((key) => {
+      if (filters[key] === undefined || filters[key] === '' || filters[key] === 'ALL_TENANTS') {
+        delete filters[key];
+      }
+    });
+
+    const [logsData, alertsData] = await Promise.all([
+      LogService.getDailyLogsCountPast60Days(filters),
+      LogService.getDailyAlertsCountPast60Days(filters),
+    ]);
+
+    // Merge both datasets by date
+    const mergedMap = new Map();
+
+    logsData.forEach(({ date, logs }) => {
+      mergedMap.set(date, { date, logs, alerts: 0 });
+    });
+
+    alertsData.forEach(({ date, alerts }) => {
+      if (mergedMap.has(date)) {
+        mergedMap.get(date).alerts = alerts;
+      } else {
+        mergedMap.set(date, { date, logs: 0, alerts });
+      }
+    });
+
+    // Fill missing days (for smooth chart line)
+    const startDate = new Date();
+    startDate.setDate(startDate.getDate() - 60);
+    const endDate = new Date();
+    const result = [];
+
+    for (
+      let d = new Date(startDate);
+      d <= endDate;
+      d.setDate(d.getDate() + 1)
+    ) {
+      const dateKey = d.toISOString().split("T")[0];
+      result.push(mergedMap.get(dateKey) || { date: dateKey, logs: 0, alerts: 0 });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Logs and Alerts trend (past 60 days)",
+      tenant,
+      data: result,
+    });
+  } catch (error) {
+    console.error("Error in getLogsAndAlerts controller:", error);
+    res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+      error: error.message,
     });
   }
 };
