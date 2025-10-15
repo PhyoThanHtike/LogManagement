@@ -15,10 +15,10 @@ export const queryClient = new QueryClient({
 });
 
 // ✅ Utility to invalidate logs, alerts, and summary queries globally
-export const invalidateLogsAlerts = async () => {
+export const invalidateLogsAlerts = async (tenant:any) => {
   await Promise.all([
-    queryClient.invalidateQueries({ queryKey: ["logs"], exact: false }),
-    queryClient.invalidateQueries({ queryKey: ["alerts"], exact: false }),
-    queryClient.invalidateQueries({ queryKey: ["summary"], exact: false }),
+    queryClient.invalidateQueries({ queryKey: ["logs", tenant], exact: false }),
+    queryClient.invalidateQueries({ queryKey: ["alerts", tenant], exact: false }),
+    queryClient.invalidateQueries({ queryKey: ["summary", tenant], exact: false }),
   ]);
 };

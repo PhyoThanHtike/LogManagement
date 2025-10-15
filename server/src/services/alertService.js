@@ -80,41 +80,20 @@ export class AlertService {
     return createdAlerts;
   }
 
-  static async getAlerts(tenant, filters = {}, page = 1, limit = 50) {
-    const skip = (page - 1) * limit;
+      // if (filters.isResolved !== undefined) {
+    //   where.isResolved = filters.isResolved === "true";
+    // }
+  static async getRecentAlerts(limit = 5) {
+    return await prisma.alert.findMany({
+      orderBy: { createdAt: "desc" },
+      take: limit,
+    });
+  }
 
-    const where = { tenant };
-
-    if (filters.isResolved !== undefined) {
-      where.isResolved = filters.isResolved === "true";
-    }
-    if (filters.severity) {
-      where.severity = { gte: parseInt(filters.severity) };
-    }
-
-    const [alerts, total] = await Promise.all([
-      prisma.alert.findMany({
-        where,
-        include: {
-          log: true,
-          alertRule: true,
-        },
-        orderBy: { createdAt: "desc" },
-        skip,
-        take: limit,
-      }),
-      prisma.alert.count({ where }),
-    ]);
-
-    return {
-      alerts,
-      pagination: {
-        page,
-        limit,
-        total,
-        pages: Math.ceil(total / limit),
-      },
-    };
+  static async getAllAlerts() {
+    return await prisma.alert.findMany({
+      orderBy: { createdAt: "desc" },
+    });
   }
 
   static async resolveAlert(id, tenant) {

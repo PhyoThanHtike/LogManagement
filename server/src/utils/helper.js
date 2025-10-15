@@ -1,5 +1,5 @@
 // utils/helpers.js
-import { Action } from "@prisma/client";
+import { Action, Tenant } from "@prisma/client";
 
 export function toAction(input) {
   if (!input) return undefined;
@@ -17,6 +17,18 @@ export function toAction(input) {
   };
   
   return actionMap[String(input).toLowerCase()];
+}
+
+export function toTenant(input) {
+    if(!input) return undefined;
+    const tenantMap = {
+        'tenant1': Tenant.TENANT1,
+        'tenant2': Tenant.TENANT2,
+        'tenant3': Tenant.TENANT3,
+        'tenant4': Tenant.TENANT4
+    };
+
+    return tenantMap[String(input).toLowerCase()];
 }
 
 export function to0to10(input) {

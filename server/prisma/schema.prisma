@@ -53,8 +53,8 @@ model Log {
   statusCode      String?
   
   // Rule info
-  ruleName        String?
-  ruleId          String?
+  // ruleName        String?
+  // ruleId          String?
   
   // Cloud context
   cloudAccountId  String?  @map("cloud_account_id")

@@ -18,6 +18,7 @@ import LogsTable from "@/AppComponents/Table/LogsTable";
 import { Card, CardHeader } from "@/components/ui/card";
 import { useLogsAlertsQuery } from "@/hooks/useLogsAlerts";
 import LogsAlertsTrendChart from "@/AppComponents/Charts/LogsAlertsChart";
+import Spinner from "@/AppComponents/Charts/Spinner";
 
 const Dashboard = () => {
   // Initialize search params synchronization
@@ -59,11 +60,7 @@ const Dashboard = () => {
         {/* Logs alerts charts */}
         <div>
           {logsAlertsLoading ? (
-            <div className="animate-pulse">
-              <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded mb-2"></div>
-              <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded mb-2"></div>
-              <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded"></div>
-            </div>
+            <Spinner size="lg" color="primary"/>
           ) : (
             logsAlertsData && (
               <div className="space-y-3">
@@ -75,11 +72,7 @@ const Dashboard = () => {
         {/* <SummaryChart data={summaryData.data}/> */}
         <div>
           {summaryLoading ? (
-            <div className="animate-pulse">
-              <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded mb-2"></div>
-              <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded mb-2"></div>
-              <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded"></div>
-            </div>
+            <Spinner size="sm" color="primary"/>
           ) : (
             summaryData && (
               <div className="space-y-3">

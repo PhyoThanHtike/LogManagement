@@ -130,11 +130,11 @@ const Navbar = () => {
             >
               {user && user.userId ? (
                 <button className="flex items-center gap-2 focus:outline-none">
-                  <div className="relative">
+                  <div className="relative h-10 w-10 rounded-full">
                     <img
-                      src=""
+                      src="https://i.pinimg.com/736x/0d/64/98/0d64989794b1a4c9d89bff571d3d5842.jpg"
                       alt="User profile"
-                      className="h-9 w-9 rounded-full object-cover border-2 border-purple-500/30 hover:border-purple-500/60 transition-all"
+                      className="h-10 w-10 rounded-full object-cover border-2 border-purple-500/30 hover:border-purple-500/60 transition-all"
                       referrerPolicy="no-referrer"
                     />
                     <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-gray-900"></div>

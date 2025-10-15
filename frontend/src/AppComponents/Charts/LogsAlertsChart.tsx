@@ -217,7 +217,7 @@ const LogsAlertsTrendChart: React.FC<{ rawData: RawData }> = ({ rawData }) => {
                 </p>
               </div>
               <div className="flex gap-2">
-                {["area", "bar", "stacked"].map((type) => (
+                {[ "bar", "stacked", "area"].map((type) => (
                   <button
                     key={type}
                     onClick={() => setChartType(type)}

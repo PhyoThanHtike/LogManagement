@@ -49,8 +49,6 @@ export function normalizeData(tenant, source, payload) {
     url: undefined,
     httpMethod: undefined,
     statusCode: undefined,
-    ruleName: undefined,
-    ruleId: undefined,
     cloudAccountId: undefined,
     cloudRegion: undefined,
     cloudService: undefined,
@@ -90,9 +88,9 @@ export function normalizeData(tenant, source, payload) {
         out.dstPort = num(kv.dpt || kv.dst_port);
         out.protocol = kv.proto || kv.protocol;
         out.action = toAction(kv.action) || Action.ALERT;
-        out.ruleName = kv.policy || kv.rule || out.ruleName;
-        out.reason = kv.msg || "syslog";
-        out.eventType = kv.policy || "syslog";
+        out.reason = kv.msg || kv.reason || "syslog";
+        out.severity = num(kv.severity) || 9;
+        out.eventType = kv.policy || kv.event || "syslog";
       } else {
         // Structured firewall JSON
         out.eventType = payload?.event_type || payload?.eventType || "syslog";
@@ -127,7 +125,6 @@ export function normalizeData(tenant, source, payload) {
         out.dstPort = num(kv.dpt || kv.dst_port);
         out.protocol = kv.proto || kv.protocol;
         out.action = toAction(kv.action) || Action.ALERT;
-        out.ruleName = kv.policy || kv.rule || out.ruleName;
         out.reason = kv.reason || "syslog";
         out.eventType = kv.event || "syslog";
       } else {

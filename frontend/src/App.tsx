@@ -18,6 +18,7 @@ import ErrorPage from "./Pages/ErrorPage";
 import RegisterOTPVerify from "./Pages/Auth/VerifyOTP";
 import ForgotPassword from "./Pages/Auth/ForgotPassword";
 import ResetPassword from "./Pages/Auth/ResetPassword";
+import Management from "./Pages/Management";
 
 const router = createBrowserRouter([
   {
@@ -29,6 +30,10 @@ const router = createBrowserRouter([
         path: "dashboard",
         element: <Dashboard />,
       },
+      {
+        path: "management",
+        element: <Management />,
+      }
     ],
   },
   {

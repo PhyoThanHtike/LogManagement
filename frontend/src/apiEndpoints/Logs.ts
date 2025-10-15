@@ -12,6 +12,12 @@ interface queryData {
   ts: string;
 }
 
+export interface logsData {
+  tenant: string;
+  source: string;
+  payload: any;
+}
+
 export const getSummary = async (tenant: string) => {
   try {
     const response = await axiosInstance.get("/api/user/get-summary", {
@@ -64,6 +70,18 @@ export const getLogsAndAlerts = async (tenant: string) => {
   } catch (error) {
     console.error("Error fetching logs:", error);
     throw error; // Re-throw the error so the caller can handle it
+  }
+};
+
+export const createLog = async (data: logsData) => {
+  try {
+    const response = await axiosInstance.post("/api/admin/ingest", data);
+    return response.data;
+  } catch (error: any) {
+    return {
+      message: error.response.data.message || "Failed Log creation",
+      success: error.response.data.success || false,
+    };
   }
 };
 

@@ -1,0 +1,1 @@
+[2025-10-15T15:45:21.843Z] 127.0.0.1:49492 <134>fw01 vendor=demo product=ngfw action=deny src=10.0.1.10 dst=8.8.8.8 spt=5353 dpt=53 severity=8 proto=udp msg='DNS blocked'

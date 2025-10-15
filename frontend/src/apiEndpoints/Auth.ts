@@ -45,7 +45,6 @@ export const Login = async (
   credentials: loginData
 ): Promise<loginResponse | errorResponse> => {
   try {
-    console.log("Credentials: ", credentials);
     const response = await axiosInstance.post("/api/auth/login", credentials);
     return response.data;
   } catch (error: any) {
