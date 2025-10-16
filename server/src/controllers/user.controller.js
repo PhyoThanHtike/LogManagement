@@ -1,6 +1,7 @@
 // controllers/adminController.js
 import { LogService } from "../services/logService.js";
 import { AlertService } from "../services/alertService.js";
+import { TopService } from "../services/TopService.js";
 
 export const getLogs = async (req, res) => {
   try {
@@ -35,7 +36,12 @@ export const getLogs = async (req, res) => {
 
     // Remove undefined or empty string filters
     Object.keys(filters).forEach((key) => {
-      if (filters[key] === undefined || filters[key] === '' || filters[key] === 'ALL_TENANTS' || filters[key] === 'ALL') {
+      if (
+        filters[key] === undefined ||
+        filters[key] === "" ||
+        filters[key] === "ALL_TENANTS" ||
+        filters[key] === "ALL"
+      ) {
         delete filters[key];
       }
     });
@@ -61,7 +67,7 @@ export const getLogs = async (req, res) => {
     res.status(500).json({
       success: false,
       message: "Internal Server Error",
-      error: error.message
+      error: error.message,
     });
   }
 };
@@ -79,7 +85,11 @@ export const getSummary = async (req, res) => {
 
     // Remove undefined or "ALL_TENANTS" values
     Object.keys(filters).forEach((key) => {
-      if (filters[key] === undefined || filters[key] === '' || filters[key] === 'ALL_TENANTS') {
+      if (
+        filters[key] === undefined ||
+        filters[key] === "" ||
+        filters[key] === "ALL_TENANTS"
+      ) {
         delete filters[key];
       }
     });
@@ -98,7 +108,7 @@ export const getSummary = async (req, res) => {
     res.status(500).json({
       success: false,
       message: "Internal Server Error",
-      error: error.message
+      error: error.message,
     });
   }
 };
@@ -107,13 +117,16 @@ export const getLogsAndAlerts = async (req, res) => {
   try {
     const { tenant } = req.query;
 
-
     // Build filters object (consistent with your buildWhereClause)
     const filters = { tenant };
 
-        // Remove undefined or "ALL_TENANTS" values
+    // Remove undefined or "ALL_TENANTS" values
     Object.keys(filters).forEach((key) => {
-      if (filters[key] === undefined || filters[key] === '' || filters[key] === 'ALL_TENANTS') {
+      if (
+        filters[key] === undefined ||
+        filters[key] === "" ||
+        filters[key] === "ALL_TENANTS"
+      ) {
         delete filters[key];
       }
     });
@@ -150,7 +163,9 @@ export const getLogsAndAlerts = async (req, res) => {
       d.setDate(d.getDate() + 1)
     ) {
       const dateKey = d.toISOString().split("T")[0];
-      result.push(mergedMap.get(dateKey) || { date: dateKey, logs: 0, alerts: 0 });
+      result.push(
+        mergedMap.get(dateKey) || { date: dateKey, logs: 0, alerts: 0 }
+      );
     }
 
     res.status(200).json({
@@ -161,6 +176,48 @@ export const getLogsAndAlerts = async (req, res) => {
     });
   } catch (error) {
     console.error("Error in getLogsAndAlerts controller:", error);
+    res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+      error: error.message,
+    });
+  }
+};
+
+export const getTopIPsAndTopSources = async (req, res) => {
+  try {
+    const { tenant } = req.query;
+
+    console.log("Top IPs and Sources query parameters:", req.query);
+
+    // Build filters object
+    const filters = {
+      tenant,
+    };
+
+    // Remove undefined or "ALL_TENANTS" values
+    Object.keys(filters).forEach((key) => {
+      if (
+        filters[key] === undefined ||
+        filters[key] === "" ||
+        filters[key] === "ALL_TENANTS"
+      ) {
+        delete filters[key];
+      }
+    });
+
+    console.log("Processed top IPs and sources filters:", filters);
+
+    const result = await TopService.getTopIPsAndTopSources(filters);
+
+    res.status(200).json({
+      success: true,
+      message: "Top IPs and sources retrieved successfully",
+      data: result,
+    });
+  } catch (error) {
+    console.log("Error in getTopIPsAndTopSources controller", error.message);
+    console.log("Error stack:", error.stack);
     res.status(500).json({
       success: false,
       message: "Internal Server Error",

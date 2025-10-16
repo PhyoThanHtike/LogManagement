@@ -12,7 +12,7 @@ export interface CreateUserData {
 // User Management API Calls
 export const createUser = async (userData: CreateUserData) => {
   try {
-    const response = await axiosInstance.post('/api/admin/users', userData);
+    const response = await axiosInstance.post('/api/admin/create-user', userData);
     return response.data;
   } catch (error: any) {
     return {
@@ -24,7 +24,7 @@ export const createUser = async (userData: CreateUserData) => {
 
 export const updateUser = async (id: string, userData: CreateUserData) => {
   try {
-    const response = await axiosInstance.put(`/api/admin/users/${id}`, userData);
+    const response = await axiosInstance.put(`/api/admin/update-user/${id}`, userData);
     return response.data;
   } catch (error: any) {
     return {
@@ -36,7 +36,7 @@ export const updateUser = async (id: string, userData: CreateUserData) => {
 
 export const deleteUser = async (id: string) => {
   try {
-    const response = await axiosInstance.delete(`/api/admin/users/${id}`);
+    const response = await axiosInstance.delete(`/api/admin/delete-user/${id}`);
     return response.data;
   } catch (error: any) {
     return {
@@ -48,7 +48,7 @@ export const deleteUser = async (id: string) => {
 
 export const toggleRestrictUser = async (id: string) => {
   try {
-    const response = await axiosInstance.patch(`/api/admin/users/${id}/restrict`);
+    const response = await axiosInstance.patch(`/api/admin/restrict-user/${id}`);
     return response.data;
   } catch (error: any) {
     return {

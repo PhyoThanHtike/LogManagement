@@ -1,5 +1,6 @@
 // services/alertService.js
 import prisma from "../utils/database.js";
+import { LogService } from "./logService.js";
 
 export class AlertService {
   static async createAlertRule(ruleData) {
@@ -16,7 +17,7 @@ export class AlertService {
       where.isActive = filters.isActive === "true";
 
     return await prisma.alertRule.findMany({
-    //   where,
+      //   where,
       orderBy: { createdAt: "desc" },
       //   include: {
       //     alerts: {
@@ -80,17 +81,20 @@ export class AlertService {
     return createdAlerts;
   }
 
-      // if (filters.isResolved !== undefined) {
-    //   where.isResolved = filters.isResolved === "true";
-    // }
-  static async getRecentAlerts(limit = 5) {
+  // if (filters.isResolved !== undefined) {
+  //   where.isResolved = filters.isResolved === "true";
+  // }
+  static async getRecentAlerts(filters = {}, limit = 5) {
+    const where = LogService.buildWhereClause(filters);
     return await prisma.alert.findMany({
+      where,
       orderBy: { createdAt: "desc" },
       take: limit,
     });
   }
 
-  static async getAllAlerts() {
+  static async getAllAlerts(filters = {}) {
+    const where = LogService.buildWhereClause(filters);
     return await prisma.alert.findMany({
       orderBy: { createdAt: "desc" },
     });

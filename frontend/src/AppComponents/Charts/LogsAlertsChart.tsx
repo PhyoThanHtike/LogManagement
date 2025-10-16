@@ -165,7 +165,7 @@ const LogsAlertsTrendChart: React.FC<{ rawData: RawData }> = ({ rawData }) => {
   };
 
   return (
-    <div className="dark:bg-gray-900 dark:border-gray-800 pt-6">
+    <div className="dark:bg-neutral-950 dark:border-gray-800 pt-6">
       <div className="max-w-full mx-auto space-y-6">
         {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">

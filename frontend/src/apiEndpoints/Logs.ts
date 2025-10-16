@@ -18,6 +18,38 @@ export interface logsData {
   payload: any;
 }
 
+export interface TopIPsAndSourcesData {
+  topIPs: Array<{
+    ip: string;
+    count: number;
+  }>;
+  topSources: Array<{
+    source: string;
+    count: number;
+  }>;
+  topActions: Array<{
+    action: string;
+    count: number;
+  }>;
+}
+
+export const getTopIPsAndTopSources = async (
+  tenant: string
+): Promise<TopIPsAndSourcesData> => {
+  try {
+    const response = await axiosInstance.get("/api/user/top-ips-sources", {
+      params: {
+        tenant: tenant,
+      },
+    });
+
+    return response.data.data; // Return the data property which contains topIPs, topSources, and topActions
+  } catch (error) {
+    console.error("Error fetching top IPs and sources:", error);
+    throw error; // Re-throw the error so the caller can handle it
+  }
+};
+
 export const getSummary = async (tenant: string) => {
   try {
     const response = await axiosInstance.get("/api/user/get-summary", {

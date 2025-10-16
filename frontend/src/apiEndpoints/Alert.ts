@@ -32,7 +32,7 @@ export interface CreateAlertRuleData {
 // Alert Rules API Calls
 export const createAlertRule = async (alertRuleData: CreateAlertRuleData) => {
   try {
-    const response = await axiosInstance.post('/api/admin/alert-rules', alertRuleData);
+    const response = await axiosInstance.post('/api/admin/create-rules', alertRuleData);
     return response.data;
   } catch (error: any) {
     return {
@@ -82,7 +82,7 @@ export const deleteAlertRule = async (id: string) => {
 // Alert Management API Calls
 export const getRecentAlerts = async () => {
   try {
-    const response = await axiosInstance.get('/api/admin/alerts/recent');
+    const response = await axiosInstance.get('/api/admin/recent-alerts');
     return response.data;
   } catch (error: any) {
     return {

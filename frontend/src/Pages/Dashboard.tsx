@@ -19,6 +19,7 @@ import { Card, CardHeader } from "@/components/ui/card";
 import { useLogsAlertsQuery } from "@/hooks/useLogsAlerts";
 import LogsAlertsTrendChart from "@/AppComponents/Charts/LogsAlertsChart";
 import Spinner from "@/AppComponents/Charts/Spinner";
+import { TopIPSourcesTable } from "@/AppComponents/Table/TopIPSourcesTable";
 
 const Dashboard = () => {
   // Initialize search params synchronization
@@ -55,7 +56,7 @@ const Dashboard = () => {
   const isLoading = summaryLoading || logsLoading;
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 px-6">
+    <div className="min-h-screen bg-gray-50 dark:bg-neutral-950 px-6">
       <div className="max-w-full mx-auto">
         {/* Logs alerts charts */}
         <div>
@@ -81,6 +82,7 @@ const Dashboard = () => {
             )
           )}
         </div>
+        <TopIPSourcesTable/>
 
         {/* Table Section */}
         <Card className="p-6 mb-6">

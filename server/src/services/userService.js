@@ -1,4 +1,5 @@
 import prisma from "../utils/database.js";
+import bcrypt from "bcryptjs";
 
 export class UserService {
     static async createUser(userData) {
@@ -9,10 +10,8 @@ export class UserService {
                 password: hashedPassword,
                 name: userData.name,
                 role: userData.role || 'USER',
-                status: userData.status || 'ACTIVE',
-                tenant: {
-                    connect: { id: userData.tenant }
-                },
+                // status: userData.status || 'ACTIVE',
+                tenant: userData.tenant,
                 loginAttempts: 0,
                 isVerified: true
             },
@@ -21,14 +20,9 @@ export class UserService {
                 email: true,
                 name: true,
                 role: true,
-                status: true,
+                // status: true,
                 createdAt: true,
-                tenant: {
-                    select: {
-                        id: true,
-                        name: true
-                    }
-                }
+
             }
         });
     }
@@ -46,12 +40,6 @@ export class UserService {
                 isVerified: true,
                 createdAt: true,
                 updatedAt: true,
-                tenant: {
-                    select: {
-                        id: true,
-                        name: true
-                    }
-                }
             }
         });
     }
