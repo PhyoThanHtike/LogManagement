@@ -4,8 +4,10 @@ import { Button } from "@/components/ui/button";
 import React from "react";
 import { UserPlus, Activity, Siren } from "lucide-react";
 import { createUser } from "@/apiEndpoints/User";
-import { createAlertRule } from "@/apiEndpoints/Alert";
+import { createAlertRule, deleteAlertRule, updateAlertRule } from "@/apiEndpoints/Alert";
 import { CreateDialog } from "@/AppComponents/Dialogs/CreateDialog";
+import { AlertRulesTable } from "@/AppComponents/Table/AlertRuleTable";
+import { useAlertRulesQuery } from "@/hooks/useCustomQuery";
 
 const Management = () => {
   const handleCreateUser = async (userData: any) => {
@@ -15,6 +17,16 @@ const Management = () => {
   const handleCreateAlertRule = async (alertRuleData: any) => {
     return await createAlertRule(alertRuleData);
   };
+
+  const handleDeleteAlertRule = async(ruleId:string)=> {
+    return await deleteAlertRule(ruleId);
+  }
+
+  const handleUpdateAlertRule = async(id:string, updateData:any)=>{
+    return await updateAlertRule(id, updateData);
+  }
+
+  const {data: alertRuleData, isLoading: alertRuleLoading} = useAlertRulesQuery();
   return (
     <>
       <div className="min-h-screen bg-gray-50 dark:bg-neutral-950 px-6">
@@ -33,6 +45,10 @@ const Management = () => {
             handleCreateAlertRule={handleCreateAlertRule}
             trigger={<CreateCards label="Alert Rules" color="red" icon={Siren} />}
           />
+        </div>
+
+        <div>
+            <AlertRulesTable data={alertRuleData} userRole="ADMIN" onDeleteRule={handleDeleteAlertRule} onUpdateRule={handleUpdateAlertRule} />
         </div>
       </div>
     </>

@@ -15,7 +15,8 @@ import {
   deleteUser,
   toggleRestrict,
   getRecentAlerts,
-  getAllAlerts
+  getAllAlerts,
+  deleteAlert
 } from "../controllers/admin.controller.js";
 
 const router = express.Router();
@@ -37,6 +38,7 @@ router.delete("/alert-rules/:id", deleteAlertRule);
 router.get("/recent-alerts", getRecentAlerts);
 router.get("/alerts", getAllAlerts);
 router.patch("/alerts/:id/resolve", resolveAlert);
+router.delete("/alerts/:id", deleteAlert);
 
 //User management routes
 router.post("/create-user", createUser);

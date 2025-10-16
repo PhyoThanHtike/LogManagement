@@ -1,4 +1,3 @@
-// components/ui/create-dialog.tsx
 import React, { useState, useEffect, useMemo } from "react";
 import {
   Dialog,
@@ -22,7 +21,11 @@ import TenantDropdown from "../Dropdowns/TenantDropdown";
 import SourceFilter from "../Dropdowns/SourceFilter";
 import { toast } from "sonner";
 
-export type DialogMode = "create-user" | "create-alert-rule";
+export type DialogMode =
+  | "create-user"
+  | "update-user"
+  | "create-alert-rule"
+  | "update-alert-rule";
 
 export interface BaseFormData {
   tenant: string;
@@ -30,7 +33,7 @@ export interface BaseFormData {
 
 export interface UserFormData extends BaseFormData {
   email: string;
-  password: string;
+  password?: string;
   name: string;
   role?: string;
 }
@@ -47,10 +50,20 @@ export type FormData = UserFormData | AlertRuleFormData;
 interface CreateDialogProps {
   mode: DialogMode;
   trigger: React.ReactNode;
+  userId?: string; // ✅ for user updates
+  alertRuleId?: string; // ✅ for alert rule updates
   handleCreateUser?: (
     userData: UserFormData
   ) => Promise<{ success: boolean; message?: string }>;
+  handleUpdateUser?: (
+    id: string,
+    userData: UserFormData
+  ) => Promise<{ success: boolean; message?: string }>;
   handleCreateAlertRule?: (
+    alertRuleData: AlertRuleFormData
+  ) => Promise<{ success: boolean; message?: string }>;
+  handleUpdateAlertRule?: (
+    id: string,
     alertRuleData: AlertRuleFormData
   ) => Promise<{ success: boolean; message?: string }>;
   onSuccess?: () => void;
@@ -61,7 +74,7 @@ function getInitialFormData(
   mode: DialogMode,
   initialData: Partial<FormData>
 ): FormData {
-  if (mode === "create-user") {
+  if (mode.includes("user")) {
     const data = initialData as Partial<UserFormData>;
     return {
       tenant: data.tenant ?? "",
@@ -85,8 +98,12 @@ function getInitialFormData(
 export const CreateDialog: React.FC<CreateDialogProps> = ({
   mode,
   trigger,
+  userId,
+  alertRuleId,
   handleCreateUser,
+  handleUpdateUser,
   handleCreateAlertRule,
+  handleUpdateAlertRule,
   onSuccess,
   initialData = {},
 }) => {
@@ -103,7 +120,11 @@ export const CreateDialog: React.FC<CreateDialogProps> = ({
 
   useEffect(() => {
     if (open) setFormData(initialFormData);
-  }, [open]); // only reset when opening
+  }, [open]);
+
+  const handleInputChange = (field: string, value: any) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -117,58 +138,89 @@ export const CreateDialog: React.FC<CreateDialogProps> = ({
     try {
       let result: { success: boolean; message?: string };
 
-      if (mode === "create-user" && handleCreateUser) {
-        result = await handleCreateUser(formData as UserFormData);
-      } else if (mode === "create-alert-rule" && handleCreateAlertRule) {
-        result = await handleCreateAlertRule(formData as AlertRuleFormData);
-      } else {
-        throw new Error("No handler provided for this mode");
+      switch (mode) {
+        case "create-user":
+          if (!handleCreateUser) throw new Error("No handler provided");
+          result = await handleCreateUser(formData as UserFormData);
+          break;
+
+        case "update-user":
+          if (!handleUpdateUser || !userId)
+            throw new Error("Missing userId or handler");
+          result = await handleUpdateUser(userId, formData as UserFormData);
+          break;
+
+        case "create-alert-rule":
+          if (!handleCreateAlertRule) throw new Error("No handler provided");
+          result = await handleCreateAlertRule(formData as AlertRuleFormData);
+          break;
+
+        case "update-alert-rule":
+          if (!handleUpdateAlertRule || !alertRuleId)
+            throw new Error("Missing alertRuleId or handler");
+          result = await handleUpdateAlertRule(
+            alertRuleId,
+            formData as AlertRuleFormData
+          );
+          break;
+
+        default:
+          throw new Error("Invalid mode");
       }
 
       if (result.success) {
         toast.success(getSuccessMessage(mode));
-        setOpen(false); // ✅ close dialog on success
+        setOpen(false);
         onSuccess?.();
       } else {
         toast.error(
-          result.message || `Failed to create ${getEntityName(mode)}`
+          result.message ||
+            `Failed to ${getActionLabel(mode)} ${getEntityName(mode)}`
         );
       }
     } catch (error: any) {
-      toast.error(error.message || `Failed to create ${getEntityName(mode)}`);
+      toast.error(
+        error.message ||
+          `Failed to ${getActionLabel(mode)} ${getEntityName(mode)}`
+      );
     } finally {
       setLoading(false);
     }
   };
 
-  const handleInputChange = (field: string, value: any) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
-  };
-
   const getDialogConfig = () => {
     switch (mode) {
       case "create-user":
-        return {
-          title: "Create User",
-          description: "Add a new user to the system",
-        };
+        return { title: "Create User", description: "Add a new user" };
+      case "update-user":
+        return { title: "Update User", description: "Edit user details" };
       case "create-alert-rule":
-        return {
-          title: "Create Alert Rule",
-          description: "Create a new alert rule for monitoring",
-        };
+        return { title: "Create Alert Rule", description: "Add a new rule" };
+      case "update-alert-rule":
+        return { title: "Update Alert Rule", description: "Edit rule details" };
       default:
         return { title: "", description: "" };
     }
   };
 
-  const getSuccessMessage = (mode: DialogMode) =>
-    mode === "create-user"
-      ? "User created successfully"
-      : "Alert rule created successfully";
+  const getActionLabel = (mode: DialogMode) =>
+    mode.startsWith("create") ? "create" : "update";
+
+  const getSuccessMessage = (mode: DialogMode) => {
+    switch (mode) {
+      case "create-user":
+        return "User created successfully";
+      case "update-user":
+        return "User updated successfully";
+      case "create-alert-rule":
+        return "Alert rule created successfully";
+      case "update-alert-rule":
+        return "Alert rule updated successfully";
+    }
+  };
 
   const getEntityName = (mode: DialogMode) =>
-    mode === "create-user" ? "user" : "alert rule";
+    mode.includes("user") ? "user" : "alert rule";
 
   const { title, description } = getDialogConfig();
 
@@ -193,18 +245,17 @@ export const CreateDialog: React.FC<CreateDialogProps> = ({
             />
           </div>
 
-          {/* User Creation Form */}
-          {mode === "create-user" && (
+          {/* User Form */}
+          {mode.includes("user") && (
             <>
-              {/* ✅ Role Dropdown */}
-              <div className="space-y-2 w-full">
+              <div className="space-y-2">
                 <Label htmlFor="role">Role</Label>
                 <Select
                   value={(formData as UserFormData).role || "USER"}
                   onValueChange={(value) => handleInputChange("role", value)}
                   disabled={loading}
                 >
-                  <SelectTrigger className="w-full bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-3 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+                  <SelectTrigger className="w-full bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-3">
                     <SelectValue placeholder="Select role" />
                   </SelectTrigger>
                   <SelectContent>
@@ -213,6 +264,7 @@ export const CreateDialog: React.FC<CreateDialogProps> = ({
                   </SelectContent>
                 </Select>
               </div>
+
               <div className="space-y-2">
                 <Label htmlFor="name">Full Name *</Label>
                 <Input
@@ -236,24 +288,31 @@ export const CreateDialog: React.FC<CreateDialogProps> = ({
                 />
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="password">Password * <span className="text-gray-400">(at least 8 characters)</span></Label>
-                <Input
-                  id="password"
-                  type="password"
-                  value={(formData as UserFormData).password}
-                  onChange={(e) =>
-                    handleInputChange("password", e.target.value)
-                  }
-                  disabled={loading}
-                  required
-                />
-              </div>
+              {mode === "create-user" && (
+                <div className="space-y-2">
+                  <Label htmlFor="password">
+                    Password *{" "}
+                    <span className="text-gray-400">
+                      (at least 8 characters)
+                    </span>
+                  </Label>
+                  <Input
+                    id="password"
+                    type="password"
+                    value={(formData as UserFormData).password || ""}
+                    onChange={(e) =>
+                      handleInputChange("password", e.target.value)
+                    }
+                    disabled={loading}
+                    required
+                  />
+                </div>
+              )}
             </>
           )}
 
           {/* Alert Rule Form */}
-          {mode === "create-alert-rule" && (
+          {mode.includes("alert-rule") && (
             <>
               <div className="space-y-2">
                 <Label htmlFor="logSource">Log Source *</Label>
@@ -319,7 +378,13 @@ export const CreateDialog: React.FC<CreateDialogProps> = ({
               Cancel
             </Button>
             <Button type="submit" disabled={loading}>
-              {loading ? "Creating..." : "Create"}
+              {loading
+                ? mode.startsWith("create")
+                  ? "Creating..."
+                  : "Updating..."
+                : mode.startsWith("create")
+                ? "Create"
+                : "Update"}
             </Button>
           </div>
         </form>

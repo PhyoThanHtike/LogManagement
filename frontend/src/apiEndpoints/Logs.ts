@@ -37,7 +37,7 @@ export const getTopIPsAndTopSources = async (
   tenant: string
 ): Promise<TopIPsAndSourcesData> => {
   try {
-    const response = await axiosInstance.get("/api/user/top-ips-sources", {
+    const response = await axiosInstance.get("/api/user/get-top", {
       params: {
         tenant: tenant,
       },

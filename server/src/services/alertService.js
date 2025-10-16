@@ -34,16 +34,16 @@ export class AlertService {
     });
   }
 
-  static async updateAlertRule(id, tenant, updateData) {
+  static async updateAlertRule(id, updateData) {
     return await prisma.alertRule.updateMany({
-      where: { id, tenant },
+      where: { id },
       data: updateData,
     });
   }
 
-  static async deleteAlertRule(id, tenant) {
+  static async deleteAlertRule(id) {
     return await prisma.alertRule.deleteMany({
-      where: { id, tenant },
+      where: { id },
     });
   }
 
@@ -100,13 +100,19 @@ export class AlertService {
     });
   }
 
-  static async resolveAlert(id, tenant) {
+  static async resolveAlert(id) {
     return await prisma.alert.updateMany({
-      where: { id, tenant },
+      where: { id },
       data: {
         isResolved: true,
         resolvedAt: new Date(),
       },
+    });
+  }
+
+  static async deleteAlert(id) {
+    return await prisma.alert.delete({
+      where: { id },
     });
   }
 

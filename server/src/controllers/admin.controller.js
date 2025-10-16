@@ -165,10 +165,9 @@ export const getAlertRules = async (req, res) => {
 export const updateAlertRule = async (req, res) => {
   try {
     const { id } = req.params;
-    const { tenant } = req.user;
     const updateData = req.body;
 
-    const result = await AlertService.updateAlertRule(id, tenant, updateData);
+    const result = await AlertService.updateAlertRule(id, updateData);
 
     if (result.count === 0) {
       return res.status(404).json({
@@ -193,9 +192,8 @@ export const updateAlertRule = async (req, res) => {
 export const deleteAlertRule = async (req, res) => {
   try {
     const { id } = req.params;
-    const { tenant } = req.user;
 
-    const result = await AlertService.deleteAlertRule(id, tenant);
+    const result = await AlertService.deleteAlertRule(id);
 
     if (result.count === 0) {
       return res.status(404).json({
@@ -287,9 +285,8 @@ export const getAllAlerts = async (req, res) => {
 export const resolveAlert = async (req, res) => {
   try {
     const { id } = req.params;
-    const { tenant } = req.user;
 
-    const result = await AlertService.resolveAlert(id, tenant);
+    const result = await AlertService.resolveAlert(id);
 
     if (result.count === 0) {
       return res.status(404).json({
@@ -304,6 +301,32 @@ export const resolveAlert = async (req, res) => {
     });
   } catch (error) {
     console.log("Error in resolveAlert controller", error.message);
+    res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+    });
+  }
+};
+
+export const deleteAlert = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const result = await AlertService.deleteAlert(id);
+
+    if (result.count === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "Alert not found",
+      });
+    }
+
+    res.json({
+      success: true,
+      message: "Alert deleted successfully",
+    });
+  } catch (error) {
+    console.log("Error in deleteAlertRule controller", error.message);
     res.status(500).json({
       success: false,
       message: "Internal Server Error",

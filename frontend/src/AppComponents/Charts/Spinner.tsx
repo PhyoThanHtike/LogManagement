@@ -27,6 +27,9 @@ const Spinner = ({
   return (
     <motion.div
       className={`
+        flex
+        items-center
+        justify-center
         ${sizeClasses[size]} 
         ${colorClasses[color]}
         border-solid 

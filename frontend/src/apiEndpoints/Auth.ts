@@ -128,6 +128,18 @@ export const resendOTP = async (
   }
 };
 
+export const SignOut = async () => {
+    try {
+        const response = await axiosInstance.post("/api/auth/logout");
+        return response.data;
+    } catch (error:any) {
+        return {
+      message: error.response.data.message || "LogOut failed",
+      success: error.response.data.status || false,
+    };
+    }
+}
+
 // export const SignOut = async () => {
 //   try {
 //     const response = await axiosInstance.post("/api/auth/logout", {

@@ -4,17 +4,20 @@ import { useState, useRef, useEffect } from "react";
 import { LogOut } from "lucide-react";
 // import { SignOut } from "@/apiEndpoints/Auth";
 import { toast } from "sonner";
-import { useUser } from "@/store/UserStore";
+import { useUser, useUserStore } from "@/store/UserStore";
 import { useFilterStore } from "@/store/FilterStore";
 import { ThemeToggle } from "@/context/ThemeToggle";
 import TenantDropdown from "@/AppComponents/Dropdowns/TenantDropdown";
 import TenantFilter from "@/AppComponents/Dropdowns/TenantFilter";
+import { SignOut } from "@/apiEndpoints/Auth";
+import CustomAlertDialog from "@/AppComponents/Dialogs/CustomAlertDialog";
 
 const Navbar = () => {
   // const userId = useSelector((state: any) => state.user.userId);
   // const profilePicture = useSelector((state: any)=> state.user.profilePicture);
 
   const user = useUser();
+  const clearUser = useUserStore.getState().clearUser;
   console.log(user);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -31,24 +34,16 @@ const Navbar = () => {
       filters.initializeTenant(user.role, user.tenant);
     }
   }, [user, filters]); // Add filters to dependencies
-  // const handleSignOut = async () => {
-  //   try {
-  //     const response = await SignOut();
-  //     dispatch(
-  //       setUser({
-  //         _id: "",
-  //         userName: "",
-  //         email: "",
-  //         profilePicture: ""
-  //       })
-  //     );
-  //     toast.success(response.message);
-  //     navigate("/auth");
-  //   } catch (error) {
-  //     console.log(error);
-  //   }
-  // };
-
+  const handleSignOut = async () => {
+    try {
+      const response = await SignOut();
+      clearUser();
+      toast.success(response.message);
+      navigate("/auth");
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   useEffect(() => {
     setActiveLink(window.location.pathname);
@@ -89,7 +84,7 @@ const Navbar = () => {
           className="flex items-center gap-2"
         >
           <Link
-            to="/"
+            to="/dashboard"
             className="flex items-center"
             onClick={() => setActiveLink("")}
           >
@@ -116,11 +111,11 @@ const Navbar = () => {
         {/* User Profile with Enhanced Dropdown */}
         <div className="flex justify-between items-center gap-4">
           <TenantFilter
-                value={filters.tenant}
-                onValueChange={filters.setTenant}
-                userRole={user?.role}
-                userTenant={user?.tenant}
-              />
+            value={filters.tenant}
+            onValueChange={filters.setTenant}
+            userRole={user?.role}
+            userTenant={user?.tenant}
+          />
           <ThemeToggle />
           <div className="relative" ref={dropdownRef}>
             <motion.div
@@ -186,16 +181,21 @@ const Navbar = () => {
                     >
                       Management
                     </Link>
-                    <button
-                      className="flex items-center px-4 py-3 text-sm text-gray-300 hover:bg-gray-700/50 w-full transition-all"
-                      onClick={() => {
-                        setIsDropdownOpen(false);
-                        // handleSignOut();
-                      }}
-                    >
-                      <LogOut className="w-4 h-4 mr-2" />
-                      Sign Out
-                    </button>
+                    <CustomAlertDialog
+                      onLogOut={handleSignOut}
+                      trigger={
+                        <button
+                          className="flex items-center px-4 py-3 text-sm text-gray-300 hover:bg-gray-700/50 w-full transition-all"
+                          onClick={() => {
+                            setIsDropdownOpen(false);
+                          }}
+                        >
+                          <LogOut className="w-4 h-4 mr-2" />
+                          Sign Out
+                        </button>
+                      }
+                      description="You gonna be logged out from Logify Dashboard"
+                    />
                   </div>
                 </motion.div>
               )}

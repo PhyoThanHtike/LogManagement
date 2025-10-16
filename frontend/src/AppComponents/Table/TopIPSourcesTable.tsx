@@ -1,3 +1,4 @@
+import type { TopIPsAndSourcesData } from "@/apiEndpoints/Logs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { motion } from "framer-motion";
@@ -27,99 +28,6 @@ interface DataResponse {
   };
 }
 
-const data: DataResponse = {
-  "success": true,
-  "message": "Top IPs and sources retrieved successfully",
-  "data": {
-    "topIPs": [
-      {
-        "ip": "10.0.1.10",
-        "count": 2
-      },
-      {
-        "ip": "10.0.2.200",
-        "count": 1
-      },
-      {
-        "ip": "203.0.113.85",
-        "count": 1
-      },
-      {
-        "ip": "203.0.113.45",
-        "count": 1
-      },
-      {
-        "ip": "10.1.3.33",
-        "count": 1
-      },
-      {
-        "ip": "192.168.10.24",
-        "count": 1
-      },
-      {
-        "ip": "10.0.3.15",
-        "count": 1
-      }
-    ],
-    "topSources": [
-      {
-        "source": "FIREWALL",
-        "count": 5
-      },
-      {
-        "source": "API",
-        "count": 4
-      },
-      {
-        "source": "AD",
-        "count": 3
-      },
-      {
-        "source": "CROWDSTRIKE",
-        "count": 2
-      },
-      {
-        "source": "NETWORK",
-        "count": 2
-      },
-      {
-        "source": "M365",
-        "count": 2
-      },
-      {
-        "source": "AWS",
-        "count": 1
-      }
-    ],
-    "topActions": [
-      {
-        "action": "DENY",
-        "count": 5
-      },
-      {
-        "action": "ALERT",
-        "count": 5
-      },
-      {
-        "action": "BLOCK",
-        "count": 4
-      },
-      {
-        "action": "QUARANTINE",
-        "count": 2
-      },
-      {
-        "action": "ALLOW",
-        "count": 1
-      },
-      {
-        "action": "LOGIN",
-        "count": 1
-      }
-    ]
-  }
-};
-
 const containerVariants = {
   hidden: { opacity: 0 },
   visible: {
@@ -141,7 +49,7 @@ const itemVariants = {
   }
 };
 
-export function TopIPSourcesTable() {
+    const TopIPSourcesTable: React.FC<{ data: any }> = ({ data }) => {
   return (
     <motion.div
       className="grid grid-cols-1 lg:grid-cols-3 gap-6"
@@ -153,7 +61,7 @@ export function TopIPSourcesTable() {
       <motion.div variants={itemVariants} className="flex">
         <Card className="flex-1 flex flex-col">
           <CardHeader>
-            <CardTitle>Top IPs</CardTitle>
+            <CardTitle className="text-xl">Top IPs</CardTitle>
             <CardDescription>
               Most active IP addresses by event count
             </CardDescription>
@@ -167,7 +75,7 @@ export function TopIPSourcesTable() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {data.data.topIPs.map((item, index) => (
+                {data.topIPs.map((item:any, index:any) => (
                   <TableRow key={item.ip}>
                     <TableCell className="font-mono">{item.ip}</TableCell>
                     <TableCell className="text-right">{item.count}</TableCell>
@@ -183,7 +91,7 @@ export function TopIPSourcesTable() {
       <motion.div variants={itemVariants} className="flex">
         <Card className="flex-1 flex flex-col">
           <CardHeader>
-            <CardTitle>Top Sources</CardTitle>
+            <CardTitle className="text-xl">Top Sources</CardTitle>
             <CardDescription>
               Event sources by occurrence count
             </CardDescription>
@@ -197,7 +105,7 @@ export function TopIPSourcesTable() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {data.data.topSources.map((item) => (
+                {data.topSources.map((item:any) => (
                   <TableRow key={item.source}>
                     <TableCell className="font-medium">{item.source}</TableCell>
                     <TableCell className="text-right">{item.count}</TableCell>
@@ -213,7 +121,7 @@ export function TopIPSourcesTable() {
       <motion.div variants={itemVariants} className="flex">
         <Card className="flex-1 flex flex-col">
           <CardHeader>
-            <CardTitle>Top Actions</CardTitle>
+            <CardTitle className="text-xl">Top Actions</CardTitle>
             <CardDescription>
               Most common actions taken
             </CardDescription>
@@ -227,7 +135,7 @@ export function TopIPSourcesTable() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {data.data.topActions.map((item) => (
+                {data.topActions.map((item:any) => (
                   <TableRow key={item.action}>
                     <TableCell className="font-medium">{item.action}</TableCell>
                     <TableCell className="text-right">{item.count}</TableCell>
@@ -241,3 +149,6 @@ export function TopIPSourcesTable() {
     </motion.div>
   );
 }
+
+export default TopIPSourcesTable;
+
