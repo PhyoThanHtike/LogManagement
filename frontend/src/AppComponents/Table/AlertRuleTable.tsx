@@ -18,8 +18,6 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import { Edit, Trash2 } from "lucide-react";
-import CreateLogDialog from "../Dialogs/CreateLogDialog";
-// use the CreateDialog for editing alert rules
 import { CreateDialog } from "@/AppComponents/Dialogs/CreateDialog";
 import CustomAlertDialog from "../Dialogs/CustomAlertDialog";
 import { toast } from "sonner";

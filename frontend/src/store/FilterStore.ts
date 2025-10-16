@@ -46,7 +46,7 @@ const initialFilterState: FilterState = {
 export const useFilterStore = create<FilterStore>()(
   immer(
     persist(
-      (set, get) => ({
+      (set) => ({
         ...initialFilterState,
 
         setFilters: (filters: Partial<FilterState>) => {

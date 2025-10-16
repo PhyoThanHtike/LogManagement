@@ -87,7 +87,7 @@ const LogsAlertsTrendChart: React.FC<{ rawData: RawData }> = ({ rawData }) => {
   };
 
   const gridColor = "#e5e7eb";
-  const darkGridColor = "#374151";
+//   const darkGridColor = "#374151";
 
   const renderChart = () => {
     const commonProps = {

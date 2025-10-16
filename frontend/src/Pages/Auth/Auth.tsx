@@ -1,13 +1,13 @@
 import { Login, SignUp } from "@/apiEndpoints/Auth";
 import React from "react";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
-import { FcGoogle } from "react-icons/fc";
+
 import { ThemeToggle } from "@/context/ThemeToggle";
 import TenantDropdown from "@/AppComponents/Dropdowns/TenantDropdown";
-import logo from "../../Logify.png";
+
 import { useUserStore } from "@/store/UserStore";
 import { useFilterStore } from "@/store/FilterStore";
 
@@ -102,6 +102,7 @@ const Auth = () => {
       }
     } catch (err) {
       setError("An unexpected error occurred");
+      toast.error(error);
     } finally {
       setLoading(false);
     }

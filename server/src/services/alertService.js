@@ -96,6 +96,7 @@ export class AlertService {
   static async getAllAlerts(filters = {}) {
     const where = LogService.buildWhereClause(filters);
     return await prisma.alert.findMany({
+      where,
       orderBy: { createdAt: "desc" },
     });
   }

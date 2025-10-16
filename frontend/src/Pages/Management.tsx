@@ -1,13 +1,28 @@
 import CreateCards from "@/AppComponents/Charts/CreateCards";
 import CreateLogDialog from "@/AppComponents/Dialogs/CreateLogDialog";
-import { Button } from "@/components/ui/button";
-import React from "react";
 import { UserPlus, Activity, Siren } from "lucide-react";
-import { createUser } from "@/apiEndpoints/User";
-import { createAlertRule, deleteAlertRule, updateAlertRule } from "@/apiEndpoints/Alert";
+import {
+  createUser,
+  deleteUser,
+  toggleRestrictUser,
+  updateUser,
+} from "@/apiEndpoints/User";
+import {
+  createAlertRule,
+  deleteAlert,
+  deleteAlertRule,
+  resolveAlert,
+  updateAlertRule,
+} from "@/apiEndpoints/Alert";
 import { CreateDialog } from "@/AppComponents/Dialogs/CreateDialog";
 import { AlertRulesTable } from "@/AppComponents/Table/AlertRuleTable";
-import { useAlertRulesQuery } from "@/hooks/useCustomQuery";
+import {
+  useAlertRulesQuery,
+  useAllAlertsQuery,
+  useAllUsersQuery,
+} from "@/hooks/useCustomQuery";
+import AlertsTable from "@/AppComponents/Table/AlertsTable";
+import { UserTable } from "@/AppComponents/Table/UserTable";
 
 const Management = () => {
   const handleCreateUser = async (userData: any) => {
@@ -18,15 +33,39 @@ const Management = () => {
     return await createAlertRule(alertRuleData);
   };
 
-  const handleDeleteAlertRule = async(ruleId:string)=> {
+  const handleDeleteAlertRule = async (ruleId: string) => {
     return await deleteAlertRule(ruleId);
-  }
+  };
+  const handleDeleteUser = async (userId: string) => {
+    return await deleteUser(userId);
+  };
+  const handleUpdateUser = async (userId: string, userData: any) => {
+    return await updateUser(userId, userData);
+  };
 
-  const handleUpdateAlertRule = async(id:string, updateData:any)=>{
+  const handleRestrictToggle = async (userId: string) => {
+    return await toggleRestrictUser(userId);
+  };
+
+  const handleDeleteAlerts = async (alertId: string) => {
+    return await deleteAlert(alertId);
+  };
+
+  const handleResolveAlerts = async (alertId: string) => {
+    return await resolveAlert(alertId);
+  };
+
+  const handleUpdateAlertRule = async (id: string, updateData: any) => {
     return await updateAlertRule(id, updateData);
-  }
+  };
 
-  const {data: alertRuleData, isLoading: alertRuleLoading} = useAlertRulesQuery();
+  const { data: alertRuleData, isLoading: alertRuleLoading } =
+    useAlertRulesQuery();
+
+  const { data: allAlertsData, isLoading: allAlertsLoading } =
+    useAllAlertsQuery();
+
+  const { data: allUsersData, isLoading: allUsersLoading } = useAllUsersQuery();
   return (
     <>
       <div className="min-h-screen bg-gray-50 dark:bg-neutral-950 px-6">
@@ -37,19 +76,48 @@ const Management = () => {
           <CreateDialog
             mode="create-user"
             handleCreateUser={handleCreateUser}
-            trigger={<CreateCards label="Users" color="green" icon={UserPlus} />}
+            trigger={
+              <CreateCards label="Users" color="green" icon={UserPlus} />
+            }
           />
 
           <CreateDialog
             mode="create-alert-rule"
             handleCreateAlertRule={handleCreateAlertRule}
-            trigger={<CreateCards label="Alert Rules" color="red" icon={Siren} />}
+            trigger={
+              <CreateCards label="Alert Rules" color="red" icon={Siren} />
+            }
           />
         </div>
 
         <div>
-            <AlertRulesTable data={alertRuleData} userRole="ADMIN" onDeleteRule={handleDeleteAlertRule} onUpdateRule={handleUpdateAlertRule} />
+          {!alertRuleLoading && (
+            <AlertRulesTable
+              data={alertRuleData}
+              userRole="ADMIN"
+              onDeleteRule={handleDeleteAlertRule}
+              onUpdateRule={handleUpdateAlertRule}
+            />
+          )}
         </div>
+        {!allAlertsLoading && (
+          <AlertsTable
+            data={allAlertsData}
+            desc="All"
+            userRole="ADMIN"
+            onDeleteAlert={handleDeleteAlerts}
+            onResolveAlert={handleResolveAlerts}
+          />
+        )}
+
+        {!allUsersLoading && (
+          <UserTable
+            data={allUsersData}
+            onDeleteUser={handleDeleteUser}
+            onToggleUserStatus={handleRestrictToggle}
+            onUpdateUser={handleUpdateUser}
+          />
+        )}
       </div>
     </>
   );

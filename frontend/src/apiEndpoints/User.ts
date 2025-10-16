@@ -57,3 +57,21 @@ export const toggleRestrictUser = async (id: string) => {
     };
   }
 };
+
+export const getUsers = async (tenant: string) => {
+  try {
+    const response = await axiosInstance.get("/api/admin/users", {
+      params: {
+        tenant: tenant,
+      },
+    });
+    return response.data;
+  } catch (error: any) {
+    return {
+      message: error.response?.data?.message || "Failed to fetch all users",
+      success: false,
+      data: [],
+      count: 0,
+    };
+  }
+};

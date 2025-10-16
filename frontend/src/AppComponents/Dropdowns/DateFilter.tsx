@@ -6,8 +6,8 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
-import { CalendarIcon, X } from "lucide-react";
-import { format, subDays } from "date-fns";
+import { CalendarIcon} from "lucide-react";
+import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 
 interface DateFilterProps {
@@ -31,10 +31,10 @@ const DateFilter = ({ value, onValueChange, disabled = false }: DateFilterProps)
     }
   };
 
-  const handleClear = () => {
-    setDate(undefined);
-    onValueChange("");
-  };
+//   const handleClear = () => {
+//     setDate(undefined);
+//     onValueChange("");
+//   };
 
 //   const presetOptions = [
 //     { value: "", label: "All Dates" },
@@ -44,40 +44,40 @@ const DateFilter = ({ value, onValueChange, disabled = false }: DateFilterProps)
 //     { value: "last30days", label: "Last 30 Days" },
 //   ];
 
-  const handlePresetSelect = (presetValue: string) => {
-    const today = new Date();
+//   const handlePresetSelect = (presetValue: string) => {
+//     const today = new Date();
 
-    switch (presetValue) {
-      case "":
-        handleClear();
-        return;
-      case "today":
-        handleDateSelect(today);
-        break;
-      case "yesterday":
-        handleDateSelect(subDays(today, 1));
-        break;
-      case "last7days":
-        // Send formatted range as a string or object
-        onValueChange(
-          JSON.stringify({
-            start: format(subDays(today, 6), "yyyy-MM-dd"),
-            end: format(today, "yyyy-MM-dd"),
-          })
-        );
-        break;
-      case "last30days":
-        onValueChange(
-          JSON.stringify({
-            start: format(subDays(today, 29), "yyyy-MM-dd"),
-            end: format(today, "yyyy-MM-dd"),
-          })
-        );
-        break;
-      default:
-        handleDateSelect(today);
-    }
-  };
+//     switch (presetValue) {
+//       case "":
+//         handleClear();
+//         return;
+//       case "today":
+//         handleDateSelect(today);
+//         break;
+//       case "yesterday":
+//         handleDateSelect(subDays(today, 1));
+//         break;
+//       case "last7days":
+//         // Send formatted range as a string or object
+//         onValueChange(
+//           JSON.stringify({
+//             start: format(subDays(today, 6), "yyyy-MM-dd"),
+//             end: format(today, "yyyy-MM-dd"),
+//           })
+//         );
+//         break;
+//       case "last30days":
+//         onValueChange(
+//           JSON.stringify({
+//             start: format(subDays(today, 29), "yyyy-MM-dd"),
+//             end: format(today, "yyyy-MM-dd"),
+//           })
+//         );
+//         break;
+//       default:
+//         handleDateSelect(today);
+//     }
+//   };
 
   const displayDate = (() => {
     try {

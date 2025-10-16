@@ -1,6 +1,6 @@
 import React from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Legend } from 'recharts';
-import { motion, type Variant, type Variants } from 'framer-motion';
+import { motion, type Variants } from 'framer-motion';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
 // Types for our data
@@ -47,7 +47,7 @@ const SummaryChart: React.FC<SummaryChartProps> = ({ data }) => {
 
   // Custom label for pie chart
   const renderCustomizedLabel = ({
-    cx, cy, midAngle, innerRadius, outerRadius, percent, name
+    cx, cy, midAngle, innerRadius, outerRadius, percent
   }: any) => {
     const RADIAN = Math.PI / 180;
     const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
@@ -103,7 +103,7 @@ const SummaryChart: React.FC<SummaryChartProps> = ({ data }) => {
                   name="Log Count"
                   radius={[4, 4, 0, 0]}
                 >
-                  {data.sources.map((entry, index) => (
+                  {data.sources.map((_, index) => (
                     <Cell key={`cell-${index}`} fill={sourceColors[index % sourceColors.length]} />
                   ))}
                 </Bar>
@@ -135,7 +135,7 @@ const SummaryChart: React.FC<SummaryChartProps> = ({ data }) => {
                   dataKey="value"
                   paddingAngle={2}
                 >
-                  {data.severities.map((entry, index) => (
+                  {data.severities.map((_, index) => (
                     <Cell 
                       key={`cell-${index}`} 
                       fill={severityColors[index % severityColors.length]} 
@@ -143,7 +143,7 @@ const SummaryChart: React.FC<SummaryChartProps> = ({ data }) => {
                   ))}
                 </Pie>
                 <Tooltip 
-                  formatter={(value, name, props) => [
+                  formatter={(value, _, props) => [
                     `${value} logs`, 
                     props.payload.payload.name
                   ]}
@@ -155,7 +155,7 @@ const SummaryChart: React.FC<SummaryChartProps> = ({ data }) => {
                   wrapperStyle={{
                     paddingLeft: '20px'
                   }}
-                  formatter={(value, entry, index) => (
+                  formatter={(_, __, index) => (
                     <span className="text-sm">
                       {data.severities[index]?.name}
                     </span>

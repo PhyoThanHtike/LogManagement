@@ -6,9 +6,10 @@ import {
   getSummary,
   getTopIPsAndTopSources,
 } from "@/apiEndpoints/Logs";
-import { getAlertRules, getRecentAlerts } from "@/apiEndpoints/Alert";
+import { getAlertRules, getAllAlerts, getRecentAlerts } from "@/apiEndpoints/Alert";
 import { useFilterStore } from "@/store/FilterStore";
 import { useDebouncedValue } from "./useDebouncedValue";
+import { getUsers } from "@/apiEndpoints/User";
 
 export const useLogsQuery = () => {
   const filters = useFilterStore();
@@ -55,11 +56,29 @@ export const useLogsAlertsQuery = () => {
   });
 };
 
+export const useAllUsersQuery = () => {
+  const tenant = useFilterStore((state) => state.tenant);
+  return useQuery({
+    queryKey: ["allUsers", tenant],
+    queryFn: () => getUsers(tenant), // ✅ fixed invocation
+    staleTime: 1000 * 60 * 5,
+  });
+};
+
 export const useRecentAlertsQuery = () => {
   const tenant = useFilterStore((state) => state.tenant);
   return useQuery({
     queryKey: ["recentalerts", tenant],
     queryFn: () => getRecentAlerts(tenant), // ✅ fixed invocation
+    staleTime: 1000 * 60 * 5,
+  });
+};
+
+export const useAllAlertsQuery = () => {
+  const tenant = useFilterStore((state) => state.tenant);
+  return useQuery({
+    queryKey: ["allalerts", tenant],
+    queryFn: () => getAllAlerts(tenant), // ✅ fixed invocation
     staleTime: 1000 * 60 * 5,
   });
 };

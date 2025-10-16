@@ -1,7 +1,6 @@
 // src/components/SearchBar.tsx
 import { Input } from "@/components/ui/input";
-import { Search } from "lucide-react";
-import { useDebouncedValue } from "@/hooks/useDebouncedValue";
+// import { useDebouncedValue } from "@/hooks/useDebouncedValue";
 
 interface SearchBarProps {
   value: string;
@@ -16,7 +15,7 @@ const SearchBar = ({
   placeholder = "Search keywords...",
   disabled = false,
 }: SearchBarProps) => {
-  const debouncedValue = useDebouncedValue(value, 500);
+//   const debouncedValue = useDebouncedValue(value, 500);
 
   // If you need to do something with debounced value, you can use useEffect here
   // For now, we'll just use it for the actual API calls in the useQuery hooks

@@ -1,32 +1,31 @@
-import type { TopIPsAndSourcesData } from "@/apiEndpoints/Logs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { motion } from "framer-motion";
 
-interface TopIP {
-  ip: string;
-  count: number;
-}
+// interface TopIP {
+//   ip: string;
+//   count: number;
+// }
 
-interface TopSource {
-  source: string;
-  count: number;
-}
+// interface TopSource {
+//   source: string;
+//   count: number;
+// }
 
-interface TopAction {
-  action: string;
-  count: number;
-}
+// interface TopAction {
+//   action: string;
+//   count: number;
+// }
 
-interface DataResponse {
-  success: boolean;
-  message: string;
-  data: {
-    topIPs: TopIP[];
-    topSources: TopSource[];
-    topActions: TopAction[];
-  };
-}
+// // interface DataResponse {
+// //   success: boolean;
+// //   message: string;
+// //   data: {
+// //     topIPs: TopIP[];
+// //     topSources: TopSource[];
+// //     topActions: TopAction[];
+// //   };
+// // }
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -75,7 +74,7 @@ const itemVariants = {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {data.topIPs.map((item:any, index:any) => (
+                {data.topIPs.map((item:any) => (
                   <TableRow key={item.ip}>
                     <TableCell className="font-mono">{item.ip}</TableCell>
                     <TableCell className="text-right">{item.count}</TableCell>

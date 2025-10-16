@@ -18,7 +18,7 @@ export const queryClient = new QueryClient({
 export const invalidateLogsAlerts = async (tenant:any) => {
   await Promise.all([
     queryClient.invalidateQueries({ queryKey: ["logs", tenant], exact: false }),
-    queryClient.invalidateQueries({ queryKey: ["alerts", tenant], exact: false }),
+    queryClient.invalidateQueries({ queryKey: ["recentalerts", tenant], exact: false }),
     queryClient.invalidateQueries({ queryKey: ["summary", tenant], exact: false }),
   ]);
 };

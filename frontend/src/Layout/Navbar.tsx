@@ -7,7 +7,6 @@ import { toast } from "sonner";
 import { useUser, useUserStore } from "@/store/UserStore";
 import { useFilterStore } from "@/store/FilterStore";
 import { ThemeToggle } from "@/context/ThemeToggle";
-import TenantDropdown from "@/AppComponents/Dropdowns/TenantDropdown";
 import TenantFilter from "@/AppComponents/Dropdowns/TenantFilter";
 import { SignOut } from "@/apiEndpoints/Auth";
 import CustomAlertDialog from "@/AppComponents/Dialogs/CustomAlertDialog";
@@ -22,7 +21,7 @@ const Navbar = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
-  const [activeLink, setActiveLink] = useState("");
+  // const [activeLink, setActiveLink] = useState("");
 
   // const handleTenantChange = (value: string) => {
   //   setTenant(value);
@@ -45,9 +44,9 @@ const Navbar = () => {
     }
   };
 
-  useEffect(() => {
-    setActiveLink(window.location.pathname);
-  }, []);
+  // useEffect(() => {
+  //   setActiveLink(window.location.pathname);
+  // }, []);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -74,7 +73,7 @@ const Navbar = () => {
       initial={{ y: -100 }}
       animate={{ y: 0 }}
       transition={{ duration: 0.5 }}
-      className="sticky top-0 z-50 w-full bg-gray-950 dark:bg-gray-850 backdrop-blur-lg supports-[backdrop-filter]:bg-gray-200/80 dark:supports-[backdrop-filter]:bg-gray-950/80"
+      className="sticky top-0 z-50 w-full bg-gray-500 dark:bg-gray-600 backdrop-blur-lg supports-[backdrop-filter]:bg-gray-200/80 dark:supports-[backdrop-filter]:bg-blue-950/80"
     >
       <div className="container w-[90%] mx-auto flex h-16 max-w-screen-2xl items-center justify-between px-4">
         {/* Logo - Preserved original styling */}
@@ -86,7 +85,7 @@ const Navbar = () => {
           <Link
             to="/dashboard"
             className="flex items-center"
-            onClick={() => setActiveLink("")}
+            // onClick={() => setActiveLink("")}
           >
             <span className="text-3xl font-bold text-gray-900 dark:text-white">
               <motion.span

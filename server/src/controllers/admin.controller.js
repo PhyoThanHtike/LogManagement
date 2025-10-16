@@ -374,7 +374,7 @@ export const createUser = async (req, res) => {
     console.error("Error creating user:", error);
     return res.status(500).json({
       error: "Internal server error",
-      details: error.message,
+    details: error.message,
     });
   }
 };
@@ -536,6 +536,40 @@ export const toggleRestrict = async (req, res) => {
     return res.status(500).json({
       error: "Internal server error",
       details: error.message,
+    });
+  }
+};
+
+export const getUsers = async (req, res) => {
+  try {
+    const { tenant } = req.query;
+    const filters = {
+      tenant,
+    };
+
+    // Remove undefined or empty values
+    Object.keys(filters).forEach((key) => {
+      if (
+        filters[key] === undefined ||
+        filters[key] === "" ||
+        filters[key] === "ALL_TENANTS"
+      ) {
+        delete filters[key];
+      }
+    });
+
+    const users = await UserService.getUsers(filters);
+
+    res.json({
+      success: true,
+      data: users,
+      count: users.length,
+    });
+  } catch (error) {
+    console.log("Error in getUsers controller", error.message);
+    res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
     });
   }
 };
