@@ -19,6 +19,7 @@ import DateFilter from "@/AppComponents/Dropdowns/DateFilter";
 import { Card, CardHeader } from "@/components/ui/card";
 import { deleteAlert, resolveAlert } from "@/apiEndpoints/Alert";
 import LoadingScreen from "@/Layout/LoadingScreen";
+import { deleteLog } from "@/apiEndpoints/Logs";
 
 // Lazy-loaded components
 const SummaryChart = React.lazy(() => import("@/AppComponents/Charts/SummaryChart"));
@@ -54,6 +55,7 @@ const Dashboard: React.FC = () => {
   }, [filters, user]);
 
   const handleDeleteAlerts = useCallback(async (id: string) => await deleteAlert(id), []);
+   const handleDeleteLogs = useCallback(async (id: string) => await deleteLog(id), []);
   const handleResolveAlerts = useCallback(async (id: string) => await resolveAlert(id), []);
   const debouncedRefetchLogs = useDebouncedCallback(() => refetchLogs?.(), 300);
 
@@ -125,7 +127,7 @@ const Dashboard: React.FC = () => {
               </div>
             </div>
 
-            {logsData && <LogsTable userRole={user?.role} logs={logsData.data} />}
+            {logsData && <LogsTable userRole={user?.role} logs={logsData.data} onDeleteLog={handleDeleteLogs} />}
           </Card>
         </Suspense>
       </div>

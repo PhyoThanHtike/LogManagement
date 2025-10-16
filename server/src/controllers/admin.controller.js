@@ -77,9 +77,8 @@ export const createLog = async (req, res) => {
 export const deleteLog = async (req, res) => {
   try {
     const { id } = req.params;
-    const { tenant } = req.user;
 
-    const result = await LogService.deleteLog(id, tenant);
+    const result = await LogService.deleteLog(id);
 
     if (result.count === 0) {
       return res.status(404).json({

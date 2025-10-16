@@ -117,6 +117,18 @@ export const createLog = async (data: logsData) => {
   }
 };
 
+export const deleteLog = async (id: string) => {
+  try {
+    const response = await axiosInstance.delete(`/api/admin/logs/${id}`);
+    return response.data;
+  } catch (error: any) {
+    return {
+      message: error.response?.data?.message || "Failed to delete logs",
+      success: false,
+    };
+  }
+};
+
 // export const getLogs = async (data: queryData) => {
 //   try {
 //     const response = await axiosInstance.get("/api/user/get-logs", {

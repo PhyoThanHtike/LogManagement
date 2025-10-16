@@ -295,4 +295,10 @@ export class LogService {
       alerts,
     }));
   }
+
+  static async deleteLog(id) {
+    return await prisma.log.delete({
+      where: { id },
+    });
+  }
 }

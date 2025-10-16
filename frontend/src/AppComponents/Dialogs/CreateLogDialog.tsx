@@ -15,7 +15,6 @@ import SourceFilter from "../Dropdowns/SourceFilter";
 import TenantDropdown from "../Dropdowns/TenantDropdown";
 import { createLog } from "@/apiEndpoints/Logs";
 import { toast } from "sonner";
-import ActionFilter from "../Dropdowns/ActionFilter";
 
 interface CreateLogDialogProps {
   trigger?: React.ReactNode;
@@ -41,7 +40,7 @@ export default function CreateLogDialog({ trigger }: CreateLogDialogProps) {
   useEffect(() => {
     if (open) {
       setFormData({
-        tenant: "",
+        tenant: "TENANT1",
         source: "API",
         payload: {},
       });
@@ -337,7 +336,7 @@ export default function CreateLogDialog({ trigger }: CreateLogDialogProps) {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="user">User</Label>
+              <Label htmlFor="user">User Email</Label>
               <Input
                 id="user"
                 placeholder="User email"

@@ -77,7 +77,7 @@ function getInitialFormData(
   if (mode.includes("user")) {
     const data = initialData as Partial<UserFormData>;
     return {
-      tenant: data.tenant ?? "",
+      tenant: data.tenant ?? "TENANT1",
       email: data.email ?? "",
       password: data.password ?? "",
       name: data.name ?? "",
@@ -338,6 +338,20 @@ export const CreateDialog: React.FC<CreateDialogProps> = ({
               </div>
 
               <div className="space-y-2">
+                <Label htmlFor="severity">Severity (0-10)</Label>
+                <Input
+                  id="severity"
+                  type="number"
+                  min="0"
+                  max="10"
+                  placeholder="0-10"
+                  onChange={(e) =>
+                    handleInputChange("severity", parseInt(e.target.value))
+                  }
+                />
+              </div>
+
+              {/* <div className="space-y-2">
                 <Label htmlFor="severity">Severity *</Label>
                 <Input
                   id="severity"
@@ -351,7 +365,7 @@ export const CreateDialog: React.FC<CreateDialogProps> = ({
                   disabled={loading}
                   required
                 />
-              </div>
+              </div> */}
 
               <div className="space-y-2">
                 <Label htmlFor="description">Description</Label>

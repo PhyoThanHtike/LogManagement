@@ -152,6 +152,7 @@ export function normalizeData(tenant, source, payload) {
       out.user = payload?.user;
       out.srcIp = payload?.ip || payload?.src_ip;
       out.statusCode = payload?.status;
+      out.severity = to0to10(payload?.severity) || 2;
 
       if (payload?.cloud) {
         out.cloudService = payload.cloud.service;
@@ -170,6 +171,7 @@ export function normalizeData(tenant, source, payload) {
       out.srcIp = payload?.ip || payload?.src_ip;
       out.statusCode = payload?.status;
       out.process = payload?.workload;
+      out.severity = to0to10(payload?.severity) || 1;
       break;
     }
 
@@ -183,6 +185,7 @@ export function normalizeData(tenant, source, payload) {
       out.user = payload?.user;
       out.host = payload?.host;
       out.srcIp = payload?.ip || payload?.src_ip;
+      out.severity = to0to10(payload?.severity) || 3;
       break;
     }
 
@@ -194,6 +197,7 @@ export function normalizeData(tenant, source, payload) {
       out.action = toAction(payload?.action || payload?.event_action) || Action.ALERT;
       out.severity = to0to10(payload?.severity);
       out.srcIp = payload?.ip || payload?.src_ip;
+      out.user = payload?.user || "Anonymous";
       break;
     }
   }
