@@ -28,6 +28,7 @@ A multi-tenant Security Information and Event Management (SIEM) platform that in
         │   Port: 5514            │ │   Port: 8080            │
         │                         │ │                         │
         │   • Receives UDP msgs   │ │   • REST API            │
+        |                         | |   • Json ingestion      |
         │   • Normalizes data     │ │   • JWT Auth            │
         │   • Writes to DB        │ │   • RBAC Middleware     │
         │   • Triggers alerts     │ │   • Rate Limiting       │
@@ -106,15 +107,15 @@ A multi-tenant Security Information and Event Management (SIEM) platform that in
         └─────────────────────────────────────────────────┘
 
 ┌─────────────────────────────────────────────────────────────────────────┐
-│                         FRONTEND (React + TypeScript)                    │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐                  │
-│  │ Login/Signup │  │   Dashboard  │  │  Log Viewer  │                  │
-│  │  (JWT Auth)  │  │  (Analytics) │  │  (Query/Search) │                  │
-│  └──────────────┘  └──────────────┘  └──────────────┘                  │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐                  │
-│  │ Alert Rules  │  │ User Mgmt    │  │ Alert Center │                  │
-│  │  (ADMIN)     │  │  (ADMIN)     │  │ (Notifications) │                  │
-│  └──────────────┘  └──────────────┘  └──────────────┘                  │
+│                         FRONTEND (React + TypeScript)                   │
+│  ┌──────────────┐  ┌──────────────┐  ┌────────────────┐                 │
+│  │ Login/Signup │  │   Dashboard  │  │  Log Viewer    │                 │
+│  │  (JWT Auth)  │  │  (Analytics) │  │  (Query/Search)│                 │
+│  └──────────────┘  └──────────────┘  └────────────────┘                 │
+│  ┌──────────────┐  ┌──────────────┐  ┌────────────────┐                 │
+│  │ Alert Rules  │  │ User Mgmt    │  │ Alert Center   │                 │
+│  │  (ADMIN)     │  │  (ADMIN)     │  │ (Notifications)│                 │
+│  └──────────────┘  └──────────────┘  └────────────────┘                 │
 └─────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -340,7 +341,7 @@ enum Tenant {
 
 | Role  | Access Level                                      |
 |-------|---------------------------------------------------|
-| ADMIN | Can see **ALL logs** across all tenants          |
+| ADMIN | Can see **ALL logs** across all tenants           |
 |       | Can create/update/delete users, alerts, rules     |
 |       | Can ingest logs, manage system settings           |
 | USER  | Can **ONLY see logs** from their own tenant       |

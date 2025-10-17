@@ -4,7 +4,7 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "NODE_OPTIONS=--experimental-vm-modules jest --runInBand",
     "start": "node src/server.js",
     "start:syslog": "node src/syslog.js",
     "dev:http": "nodemon src/server.js",
@@ -19,9 +19,12 @@
   "license": "ISC",
   "description": "",
   "devDependencies": {
+    "@babel/preset-env": "^7.28.3",
     "concurrently": "^8.2.2",
+    "jest": "^30.2.0",
     "nodemon": "^3.1.10",
-    "prisma": "^6.14.0"
+    "prisma": "^6.14.0",
+    "supertest": "^7.1.4"
   },
   "dependencies": {
     "@prisma/client": "^6.14.0",
