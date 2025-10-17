@@ -20,6 +20,7 @@ import {
 import TenantDropdown from "../Dropdowns/TenantDropdown";
 import SourceFilter from "../Dropdowns/SourceFilter";
 import { toast } from "sonner";
+import { invalidateAlertRules, invalidateUsers } from "@/query/queryClient";
 
 export type DialogMode =
   | "create-user"
@@ -144,17 +145,20 @@ export const CreateDialog: React.FC<CreateDialogProps> = ({
         case "create-user":
           if (!handleCreateUser) throw new Error("No handler provided");
           result = await handleCreateUser(formData as UserFormData);
+          invalidateUsers(currentTenant);
           break;
 
         case "update-user":
           if (!handleUpdateUser || !userId)
             throw new Error("Missing userId or handler");
           result = await handleUpdateUser(userId, formData as UserFormData);
+          invalidateUsers(currentTenant);
           break;
 
         case "create-alert-rule":
           if (!handleCreateAlertRule) throw new Error("No handler provided");
           result = await handleCreateAlertRule(formData as AlertRuleFormData);
+          invalidateAlertRules(currentTenant);
           break;
 
         case "update-alert-rule":
@@ -164,6 +168,7 @@ export const CreateDialog: React.FC<CreateDialogProps> = ({
             alertRuleId,
             formData as AlertRuleFormData
           );
+          invalidateAlertRules(currentTenant);
           break;
 
         default:
