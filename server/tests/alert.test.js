@@ -5,6 +5,16 @@ import express from "express";
 // -----------------------------
 // Step 1: Mock modules BEFORE importing router
 // -----------------------------
+
+// Mock EmailService first to prevent Resend initialization errors
+jest.unstable_mockModule("../src/services/emailService.js", () => ({
+  EmailService: {
+    sendOTPEmail: jest.fn().mockResolvedValue({ success: true }),
+    sendNotificationEmail: jest.fn().mockResolvedValue({ success: true }),
+    // Add any other methods your app uses
+  }
+}));
+
 jest.unstable_mockModule("../src/middleware/protectRoute.js", () => ({
   protectRoute: (req, res, next) => {
     // Mock authenticated user
