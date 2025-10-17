@@ -6,6 +6,10 @@ on:
   pull_request:
     branches: [ main ]
 
+concurrency:
+  group: ${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   backend:
     name: Backend - Node.js
@@ -25,6 +29,7 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           cache: "npm"
+          cache-dependency-path: server/package-lock.json
 
       - name: Install backend dependencies
         run: npm install
@@ -64,3 +69,10 @@ jobs:
 
       - name: Build frontend
         run: npm run build
+
+      - name: Upload frontend build
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-build
+          path: frontend/dist/
