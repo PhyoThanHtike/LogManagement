@@ -10,6 +10,7 @@ import ForgotPassword from "./Pages/Auth/ForgotPassword";
 import ResetPassword from "./Pages/Auth/ResetPassword";
 import Management from "./Pages/Management";
 
+// triggering CI
 const router = createBrowserRouter([
   {
     path: "/",
