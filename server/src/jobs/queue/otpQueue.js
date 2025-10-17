@@ -1,6 +1,6 @@
 // queues/otpQueue.js
 import { Queue } from 'bullmq';
-import { redis } from '../../../config/redis-client.js';
+import { redis } from '../../config/redis-client.js';
 
 export const otpQueue = new Queue('otpQueue', {
   connection: redis,
