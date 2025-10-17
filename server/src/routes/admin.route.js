@@ -44,7 +44,7 @@ router.delete("/alerts/:id", deleteAlert);
 router.post("/create-user", createUser);
 router.put('/update-user/:id', updateUser);
 router.get('/users', getUsers);
-router.delete("/delete-user", deleteUser);
+router.delete("/delete-user/:id", deleteUser);
 router.patch('/restrict-user/:id', toggleRestrict);
 
 export default router;

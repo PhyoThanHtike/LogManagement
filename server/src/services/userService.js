@@ -50,42 +50,69 @@ export class UserService {
   }
 
   static async updateUser(id, updateData) {
-    const data = { ...updateData };
-
-    // const hashedPassword = await bcrypt.hash(updateData.password, 12);
-
-    if (updateData.tenant) {
-      data.tenant = {
-        connect: { id: updateData.tenant },
-      };
-    }
-
-    return await prisma.user.update({
+    return await prisma.user.updateMany({
       where: { id },
-      data,
-      select: {
-        id: true,
-        email: true,
-        name: true,
-        role: true,
-        status: true,
-        loginAttempts: true,
-        isVerified: true,
-        createdAt: true,
-        updatedAt: true,
-        tenant: {
-          select: {
-            id: true,
-            name: true,
-          },
-        },
-      },
+      data: updateData,
     });
   }
 
+//   static async updateUser(id, updateData) {
+//     const data = { ...updateData };
+
+//     // const hashedPassword = await bcrypt.hash(updateData.password, 12);
+
+//     if (updateData.tenant) {
+//       data.tenant = {
+//         connect: { id: updateData.tenant },
+//       };
+//     }
+
+//     return await prisma.user.update({
+//       where: { id },
+//       data,
+//       select: {
+//         id: true,
+//         email: true,
+//         name: true,
+//         role: true,
+//         status: true,
+//         loginAttempts: true,
+//         isVerified: true,
+//         createdAt: true,
+//         updatedAt: true,
+//         tenant: {
+//           select: {
+//             id: true,
+//             name: true,
+//           },
+//         },
+//       },
+//     });
+//   }
+
   static async deleteUser(id) {
-    return await prisma.user.delete({
+return await prisma.user.delete({
       where: { id },
+    });
+  }
+  static async toggleUserStatus(id) {
+    // Get the current user
+    const user = await prisma.user.findUnique({
+      where: { id },
+      select: { status: true },
+    });
+
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    // Toggle the status
+    const newStatus = user.status === "ACTIVE" ? "RESTRICTED" : "ACTIVE";
+
+    // Update and return the updated user
+    return await prisma.user.update({
+      where: { id },
+      data: { status: newStatus },
     });
   }
 

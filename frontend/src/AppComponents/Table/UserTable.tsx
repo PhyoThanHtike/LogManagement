@@ -29,7 +29,8 @@ import { Edit, Trash2, Ban, UserCheck, Search } from "lucide-react";
 import { CreateDialog } from "@/AppComponents/Dialogs/CreateDialog";
 import CustomAlertDialog from "../Dialogs/CustomAlertDialog";
 import { toast } from "sonner";
-import { useMemo, useState, memo } from "react";
+import { useMemo, useState, memo, useCallback } from "react";
+import { invalidateUsers } from "@/query/queryClient";
 
 interface User {
   id: string;
@@ -49,6 +50,7 @@ interface UsersResponse {
 
 interface UserTableProps {
   data?: UsersResponse | null;
+  currentTenant: string;
   onUpdateUser?: (
     userId: string,
     updateData: any
@@ -82,12 +84,13 @@ const formatDate = (dateString: string) => {
   });
 };
 
-function UserTableComponent({
+ const UserTableComponent = ({
   data,
+  currentTenant,
   onUpdateUser,
   onDeleteUser,
   onToggleUserStatus,
-}: UserTableProps) {
+}: UserTableProps)=> {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("ALL");
   const [roleFilter, setRoleFilter] = useState<string>("ALL");
@@ -122,7 +125,7 @@ function UserTableComponent({
     });
   }, [data, searchTerm, statusFilter, roleFilter]);
 
-  const handleStatusToggle = async (
+  const handleStatusToggle = useCallback( async (
     userId: string,
     userName: string,
     currentStatus: string
@@ -132,11 +135,12 @@ function UserTableComponent({
     try {
       await onToggleUserStatus(userId);
       const newStatus = currentStatus === "ACTIVE" ? "RESTRICTED" : "ACTIVE";
+      await invalidateUsers(currentTenant);
       toast.success(`${userName} status updated to ${newStatus}`);
     } catch (error) {
       toast.error("Failed to update user status");
     }
-  };
+  }, [currentTenant])
 
   const getStatusToggleDescription = (
     userName: string,
@@ -288,6 +292,7 @@ function UserTableComponent({
 
                         {/* EDIT: use CreateDialog in update mode */}
                         <CreateDialog
+                          currentTenant={currentTenant}
                           mode="update-user"
                           trigger={
                             <Button variant="outline" size="sm">
@@ -312,6 +317,7 @@ function UserTableComponent({
                               };
                             const res = await onUpdateUser(id, updateData);
                             if (res === undefined) return { success: true };
+                            await invalidateUsers(currentTenant);
                             return res as {
                               success: boolean;
                               message?: string;
@@ -336,6 +342,7 @@ function UserTableComponent({
                           onConfirm={async () => {
                             if (!onDeleteUser) return;
                             await onDeleteUser(user.id);
+                            await invalidateUsers(currentTenant);
                             toast.success(`${user.name} deleted successfully`);
                           }}
                         />
@@ -366,3 +373,4 @@ function UserTableComponent({
 
 // Memoize the component to prevent unnecessary re-renders
 export const UserTable = memo(UserTableComponent);
+export default UserTable;

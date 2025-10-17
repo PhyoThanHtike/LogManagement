@@ -43,6 +43,7 @@ const Dashboard: React.FC = () => {
   const filters = useFilterStore();
   const { user } = useUserStore();
 
+
   const { data: summaryData, isLoading: summaryLoading } = useSummaryQuery();
   const { data: logsData, isLoading: logsLoading, refetch: refetchLogs } = useLogsQuery();
   const { data: logsAlertsData, isLoading: logsAlertsLoading } = useLogsAlertsQuery();
@@ -82,6 +83,7 @@ const Dashboard: React.FC = () => {
           {topIPsData && <TopIPSourcesTable data={topIPsData} />}
           {alertsData && (
             <AlertsTable
+                currentTenant={filters.tenant}
               data={alertsData}
               desc="Recent"
               userRole={user?.role}
@@ -127,7 +129,7 @@ const Dashboard: React.FC = () => {
               </div>
             </div>
 
-            {logsData && <LogsTable userRole={user?.role} logs={logsData.data} onDeleteLog={handleDeleteLogs} />}
+            {logsData && <LogsTable currentTenant={filters.tenant} userRole={user?.role} logs={logsData.data} onDeleteLog={handleDeleteLogs} />}
           </Card>
         </Suspense>
       </div>

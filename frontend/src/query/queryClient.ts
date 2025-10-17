@@ -15,10 +15,51 @@ export const queryClient = new QueryClient({
 });
 
 // ✅ Utility to invalidate logs, alerts, and summary queries globally
-export const invalidateLogsAlerts = async (tenant:any) => {
+export const invalidateLogsAlerts = async (tenant: any) => {
   await Promise.all([
     queryClient.invalidateQueries({ queryKey: ["logs", tenant], exact: false }),
-    queryClient.invalidateQueries({ queryKey: ["recentalerts", tenant], exact: false }),
-    queryClient.invalidateQueries({ queryKey: ["summary", tenant], exact: false }),
+    queryClient.invalidateQueries({
+      queryKey: ["recentalerts", tenant],
+      exact: false,
+    }),
+    queryClient.invalidateQueries({
+      queryKey: ["summary", tenant],
+      exact: false,
+    }),
+    queryClient.invalidateQueries({
+      queryKey: ["top-ips", tenant],
+      exact: false,
+    }),
+  ]);
+};
+
+export const invalidateUsers = async (tenant: any) => {
+  await Promise.all([
+    queryClient.invalidateQueries({
+      queryKey: ["allUsers", tenant],
+      exact: false,
+    }),
+  ]);
+};
+
+export const invalidateAlertRules = async (tenant: any) => {
+  await Promise.all([
+    queryClient.invalidateQueries({
+      queryKey: ["alertRules", tenant],
+      exact: false,
+    }),
+  ]);
+};
+
+export const invalidateAlerts = async (tenant: any) => {
+  await Promise.all([
+    queryClient.invalidateQueries({
+      queryKey: ["allalerts", tenant],
+      exact: false,
+    }),
+    queryClient.invalidateQueries({
+      queryKey: ["recentalerts", tenant],
+      exact: false,
+    }),
   ]);
 };

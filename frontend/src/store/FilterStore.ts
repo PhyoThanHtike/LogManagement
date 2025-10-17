@@ -1,4 +1,3 @@
-// src/store/filterStore.ts
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
@@ -33,9 +32,9 @@ export type FilterStore = FilterState & FilterActions;
 
 const initialFilterState: FilterState = {
   keyword: "",
-  tenant: "ALL_TENANTS", // Will be initialized based on user role
+  tenant: "ALL_TENANTS",
   action: "ALL",
-  source: "ALL",
+  source: "", // Empty = show placeholder
   severity: "",
   date: "ALL",
   startDate: "",
@@ -109,23 +108,30 @@ export const useFilterStore = create<FilterStore>()(
             Object.assign(state, initialFilterState);
           });
         },
+
         initializeTenant: (userRole?: string, userTenant?: string) => {
           set((state) => {
-            // Only initialize if tenant hasn't been explicitly set (is still at initial value)
             if (state.tenant === "ALL_TENANTS" || !state.tenant) {
               if (userRole === "ADMIN") {
-                state.tenant = "ALL_TENANTS"; // All tenants for ADMIN
+                state.tenant = "ALL_TENANTS";
               } else if (userTenant) {
-                state.tenant = userTenant; // User's specific tenant
+                state.tenant = userTenant;
               }
-              // If no user role/tenant, leave as ALL_TENANTS (default)
             }
           });
         },
       }),
       {
         name: "filter-storage",
+        version: 2, // bump version to clear old data
         storage: createJSONStorage(() => sessionStorage),
+        migrate: (persistedState: any, version) => {
+          if (version < 2) {
+            // reset old `source` values to empty for placeholder fix
+            return { ...persistedState, source: "" };
+          }
+          return persistedState;
+        },
         partialize: (state) => ({
           keyword: state.keyword,
           tenant: state.tenant,

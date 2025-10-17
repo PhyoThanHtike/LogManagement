@@ -20,6 +20,7 @@ import { motion } from "framer-motion";
 import { CheckCircle, Trash2 } from "lucide-react";
 import CustomAlertDialog from "@/AppComponents/Dialogs/CustomAlertDialog";
 import { toast } from "sonner";
+import { invalidateAlerts } from "@/query/queryClient";
 
 interface Alert {
   id: string;
@@ -42,6 +43,7 @@ interface AlertsResponse {
 
 interface AlertsTableProps {
   data?: AlertsResponse | null;
+  currentTenant: string;
   userRole: any;
   desc: string;
   // Handlers may return a promise that resolves to { success: boolean; message?: string } or void
@@ -76,6 +78,7 @@ const formatDate = (dateString: string) => {
 
 const AlertsTable: React.FC<AlertsTableProps> = ({
   data,
+  currentTenant,
   userRole,
   desc,
   onResolveAlert,
@@ -232,6 +235,7 @@ const AlertsTable: React.FC<AlertsTableProps> = ({
                             }
                             try {
                               const res = await onDeleteAlert(alert.id);
+                              await invalidateAlerts(currentTenant);
                               handleResultToasts(
                                 res,
                                 "Alert deleted",

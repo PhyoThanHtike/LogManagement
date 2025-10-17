@@ -70,7 +70,7 @@ export const CustomAlertDialog: React.FC<CustomAlertDialogProps> = ({
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={handleConfirm}
-              className="rounded-xl bg-destructive px-4 py-2 text-sm text-destructive-foreground hover:bg-destructive/90 transition"
+              className="rounded-xl bg-destructive px-4 py-2 text-sm text-white hover:bg-destructive/90 transition"
             >
               {confirmText}
             </AlertDialogAction>

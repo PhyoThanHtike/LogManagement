@@ -50,6 +50,7 @@ export type FormData = UserFormData | AlertRuleFormData;
 interface CreateDialogProps {
   mode: DialogMode;
   trigger: React.ReactNode;
+  currentTenant:string;
   userId?: string; // ✅ for user updates
   alertRuleId?: string; // ✅ for alert rule updates
   handleCreateUser?: (
@@ -97,6 +98,7 @@ function getInitialFormData(
 
 export const CreateDialog: React.FC<CreateDialogProps> = ({
   mode,
+  currentTenant,
   trigger,
   userId,
   alertRuleId,

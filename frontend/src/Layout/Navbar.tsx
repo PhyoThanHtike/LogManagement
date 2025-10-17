@@ -83,7 +83,7 @@ const Navbar = () => {
           className="flex items-center gap-2"
         >
           <Link
-            to="/dashboard"
+            to="/"
             className="flex items-center"
             // onClick={() => setActiveLink("")}
           >
@@ -167,7 +167,7 @@ const Navbar = () => {
                       </p>
                     </div>
                     <Link
-                      to="/dashboard"
+                      to="/"
                       className="block px-4 py-3 text-sm text-gray-300 hover:bg-gray-700/50 transition-all"
                       onClick={() => setIsDropdownOpen(false)}
                     >

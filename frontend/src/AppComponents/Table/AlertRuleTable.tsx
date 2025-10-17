@@ -21,6 +21,7 @@ import { Edit, Trash2 } from "lucide-react";
 import { CreateDialog } from "@/AppComponents/Dialogs/CreateDialog";
 import CustomAlertDialog from "../Dialogs/CustomAlertDialog";
 import { toast } from "sonner";
+import { invalidateAlertRules } from "@/query/queryClient";
 
 interface AlertRule {
   id: string;
@@ -41,10 +42,14 @@ interface AlertRulesResponse {
 
 interface AlertRulesTableProps {
   data?: AlertRulesResponse | null;
+  currentTenant: string;
   userRole: "ADMIN" | "USER";
   // Make these return Promise-like results to match how CreateDialog expects handlers,
   // but we still guard and wrap when calling.
-  onUpdateRule?: (ruleId: string, updateData: any) => Promise<{ success: boolean; message?: string } | void>;
+  onUpdateRule?: (
+    ruleId: string,
+    updateData: any
+  ) => Promise<{ success: boolean; message?: string } | void>;
   onDeleteRule?: (ruleId: string) => Promise<void> | void;
 }
 
@@ -63,12 +68,15 @@ const formatDate = (dateString: string) => {
   });
 };
 
-export function AlertRulesTable({
+  const AlertRulesTable =({
   data,
   userRole,
+  currentTenant,
   onUpdateRule,
   onDeleteRule,
-}: AlertRulesTableProps) {
+}: AlertRulesTableProps)=> {
+
+
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -84,7 +92,9 @@ export function AlertRulesTable({
       <Card>
         <CardHeader>
           <CardTitle className="text-xl">Alert Rules</CardTitle>
-          <CardDescription>Manage and monitor your security alert rules</CardDescription>
+          <CardDescription>
+            Manage and monitor your security alert rules
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <Table>
@@ -96,7 +106,9 @@ export function AlertRulesTable({
                 <TableHead>Severity</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Created</TableHead>
-                {userRole === "ADMIN" && <TableHead className="text-right">Actions</TableHead>}
+                {userRole === "ADMIN" && (
+                  <TableHead className="text-right">Actions</TableHead>
+                )}
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -105,7 +117,9 @@ export function AlertRulesTable({
                   <TableCell>
                     <div>
                       <div className="font-medium">{rule.ruleName}</div>
-                      <div className="text-sm text-muted-foreground mt-1">{rule.description}</div>
+                      <div className="text-sm text-muted-foreground mt-1">
+                        {rule.description}
+                      </div>
                     </div>
                   </TableCell>
                   <TableCell>
@@ -117,20 +131,25 @@ export function AlertRulesTable({
                     <Badge variant="secondary">{rule.tenant}</Badge>
                   </TableCell>
                   <TableCell>
-                    <Badge className={getSeverityColor(rule.severity)}>{rule.severity}/10</Badge>
+                    <Badge className={getSeverityColor(rule.severity)}>
+                      {rule.severity}/10
+                    </Badge>
                   </TableCell>
                   <TableCell>
                     <Badge variant={rule.isActive ? "default" : "secondary"}>
                       {rule.isActive ? "Active" : "Inactive"}
                     </Badge>
                   </TableCell>
-                  <TableCell className="text-sm text-muted-foreground">{formatDate(rule.createdAt)}</TableCell>
+                  <TableCell className="text-sm text-muted-foreground">
+                    {formatDate(rule.createdAt)}
+                  </TableCell>
 
                   {userRole === "ADMIN" && (
                     <TableCell>
                       <div className="flex justify-end gap-2">
                         {/* EDIT: use CreateDialog in update mode. Pass initialData and a wrapper handleUpdateAlertRule */}
                         <CreateDialog
+                          currentTenant={currentTenant}
                           mode="update-alert-rule"
                           trigger={
                             <Button variant="outline" size="sm">
@@ -146,12 +165,23 @@ export function AlertRulesTable({
                             description: rule.description,
                           }}
                           // wrap the provided onUpdateRule to the handler signature CreateDialog expects
-                          handleUpdateAlertRule={async (id: string, updateData: any) => {
-                            if (!onUpdateRule) return { success: false, message: "No update handler" };
+                          handleUpdateAlertRule={async (
+                            id: string,
+                            updateData: any
+                          ) => {
+                            if (!onUpdateRule)
+                              return {
+                                success: false,
+                                message: "No update handler",
+                              };
                             const res = await onUpdateRule(id, updateData);
                             // If onUpdateRule returns void, treat as success
                             if (res === undefined) return { success: true };
-                            return res as { success: boolean; message?: string };
+                            await invalidateAlertRules(currentTenant);
+                            return res as {
+                              success: boolean;
+                              message?: string;
+                            };
                           }}
                         />
 
@@ -167,7 +197,10 @@ export function AlertRulesTable({
                           onDelete={async () => {
                             if (!onDeleteRule) return;
                             await onDeleteRule(rule.id);
-                            toast.success(`${rule.ruleName} deleted successfully`);
+                            await invalidateAlertRules(currentTenant);
+                            toast.success(
+                              `${rule.ruleName} deleted successfully`
+                            );
                           }}
                         />
                       </div>
@@ -182,3 +215,6 @@ export function AlertRulesTable({
     </motion.div>
   );
 }
+
+export default AlertRulesTable;
+

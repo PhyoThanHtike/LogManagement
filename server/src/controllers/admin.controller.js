@@ -373,7 +373,7 @@ export const createUser = async (req, res) => {
     console.error("Error creating user:", error);
     return res.status(500).json({
       error: "Internal server error",
-    details: error.message,
+      details: error.message,
     });
   }
 };
@@ -434,8 +434,9 @@ export const updateUser = async (req, res) => {
     const updatedUser = await UserService.updateUser(id, updateData);
 
     return res.status(200).json({
+      success: true,
       message: "User updated successfully",
-      user: updatedUser,
+      //   user: updatedUser,
     });
   } catch (error) {
     console.error("Error updating user:", error);
@@ -503,16 +504,6 @@ export const toggleRestrict = async (req, res) => {
         error: "User ID is required",
       });
     }
-
-    // Check if user exists
-    const existingUser = await UserService.findUserById(id);
-
-    if (!existingUser) {
-      return res.status(404).json({
-        error: "User not found",
-      });
-    }
-
     // Toggle user status
     const updatedUser = await UserService.toggleUserStatus(id);
 

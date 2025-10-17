@@ -26,6 +26,7 @@ import {
 } from "lucide-react";
 import CustomAlertDialog from "../Dialogs/CustomAlertDialog";
 import { toast } from "sonner";
+import { invalidateLogsAlerts } from "@/query/queryClient";
 
 // Types
 interface Log {
@@ -43,6 +44,7 @@ interface Log {
 
 interface LogsTableProps {
   logs: Log[];
+  currentTenant: string;
   userRole: any;
   onDeleteLog?: (
     logId: string
@@ -187,11 +189,12 @@ const getActionConfig = (action: string | null) => {
 
 const LogsTable = ({
   logs,
+  currentTenant,
   userRole,
   onDeleteLog,
   isLoading = false,
 }: LogsTableProps) => {
-  const [deletingIds, setDeletingIds] = useState<Set<string>>(new Set());
+  // const [deletingIds, setDeletingIds] = useState<Set<string>>(new Set());
 
     const handleResultToasts = (
     result: any,
@@ -365,6 +368,7 @@ const LogsTable = ({
                                 "Log deleted",
                                 "Failed to delete Log"
                               );
+                              await invalidateLogsAlerts(currentTenant);
                             } catch (err: any) {
                               toast.error(
                                 err?.message || "Failed to delete log"

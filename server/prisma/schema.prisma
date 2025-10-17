@@ -141,7 +141,6 @@ enum Tenant {
 enum Status {
   ACTIVE
   RESTRICTED
-  SUSPENDED
 }
 
 enum OTPPurpose {
