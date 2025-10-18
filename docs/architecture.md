@@ -576,30 +576,6 @@ Redis Cloud ────────────┼─────> Render (Back
 
 ---
 
-## Future Roadmap
-
-1. **Enhanced Parsing**
-   - Support for CEF (Common Event Format)
-   - JSON log ingestion via HTTP
-   - Custom parsing rules per tenant
-
-2. **Advanced Analytics**
-   - Machine learning for anomaly detection
-   - Threat intelligence integration
-   - Compliance reporting (SOC 2, GDPR)
-
-3. **UI Enhancements**
-   - Real-time log streaming (WebSockets)
-   - Advanced query builder
-   - Custom dashboards per tenant
-
-4. **Integration**
-   - Webhook notifications (Slack, Teams, PagerDuty)
-   - SIEM tool exports (Splunk, QRadar)
-   - API for third-party integrations
-
----
-
 ## Conclusion
 
 This architecture provides a **scalable, secure, and multi-tenant** log management platform suitable for small to medium deployments. The logical isolation model ensures data privacy while maintaining operational simplicity. The modular design allows for easy extension and integration with existing security infrastructure.
