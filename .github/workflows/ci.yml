@@ -1,18 +1,18 @@
-name: Monorepo CI
+name: Monorepo CI/CD
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, develop ]
   pull_request:
-    branches: [ main ]
+    branches: [ main, develop ]
 
 concurrency:
   group: ${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  backend:
-    name: Backend - Node.js
+  backend-test:
+    name: Backend Tests
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -22,17 +22,20 @@ jobs:
         working-directory: server
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
           cache: "npm"
           cache-dependency-path: server/package-lock.json
 
       - name: Install backend dependencies
-        run: npm install
+        run: npm ci
+
+      - name: Generate Prisma Client
+        run: npx prisma generate
 
       - name: Run backend tests
         run: NODE_OPTIONS=--experimental-vm-modules npm test -- --coverage
@@ -43,9 +46,10 @@ jobs:
         with:
           name: backend-coverage
           path: server/coverage/
+          retention-days: 7
 
-  frontend:
-    name: Frontend - Vite
+  frontend-test:
+    name: Frontend Build & Test
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -55,20 +59,22 @@ jobs:
         working-directory: frontend
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
           cache: "npm"
           cache-dependency-path: frontend/package-lock.json
 
       - name: Install frontend dependencies
-        run: npm install
+        run: npm ci
 
       - name: Build frontend
         run: npm run build
+        env:
+          VITE_BASE_URL: ${{ secrets.VITE_BASE_URL || 'http://localhost:3000' }}
 
       - name: Upload frontend build
         if: always()
@@ -76,3 +82,33 @@ jobs:
         with:
           name: frontend-build
           path: frontend/dist/
+          retention-days: 7
+
+  # Optional: Auto-deploy on push to main
+  deploy:
+    name: Deploy to Production
+    needs: [backend-test, frontend-test]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Trigger Render Deploy
+        run: |
+          if [ -n "${{ secrets.RENDER_DEPLOY_HOOK_URL }}" ]; then
+            curl -X POST ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+            echo "✅ Render deployment triggered"
+          else
+            echo "⚠️  RENDER_DEPLOY_HOOK_URL not set, skipping Render deployment"
+          fi
+
+      - name: Deploy to Vercel
+        run: |
+          if [ -n "${{ secrets.VERCEL_TOKEN }}" ]; then
+            cd frontend
+            npx vercel --prod --token=${{ secrets.VERCEL_TOKEN }} --yes
+            echo "✅ Vercel deployment triggered"
+          else
+            echo "⚠️  VERCEL_TOKEN not set, skipping Vercel deployment"
+          fi
