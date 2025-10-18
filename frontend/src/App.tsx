@@ -20,7 +20,7 @@ const ForgotPassword = lazy(() => import("./Pages/Auth/ForgotPassword"));
 const ResetPassword = lazy(() => import("./Pages/Auth/ResetPassword"));
 const Management = lazy(() => import("./Pages/Management"));
 
-// Elegant animated loader
+//  animated loader
 const LoadingScreen = () => (
   <div className="flex items-center justify-center h-screen bg-gray-50">
     <motion.div
