@@ -5,9 +5,7 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-console.log('🚀 Starting combined servers...');
-
-const isProduction = process.env.NODE_ENV === 'production';
+console.log('🚀 Starting combined HTTP + Syslog + OTP Worker servers...');
 
 // Start HTTP server
 const httpServer = spawn('node', [path.join(__dirname, 'server.js')], {
@@ -15,17 +13,11 @@ const httpServer = spawn('node', [path.join(__dirname, 'server.js')], {
   env: { ...process.env }
 });
 
-// Start Syslog server (only in development - UDP not supported on Render)
-let syslogServer = null;
-if (!isProduction) {
-  console.log('🔵 Starting Syslog server (development only)...');
-  syslogServer = spawn('node', [path.join(__dirname, 'syslog.js')], {
-    stdio: 'inherit',
-    env: { ...process.env }
-  });
-} else {
-  console.log('⚠️  Syslog server skipped in production (UDP not supported on PaaS)');
-}
+// Start Syslog server
+const syslogServer = spawn('node', [path.join(__dirname, 'syslog.js')], {
+  stdio: 'inherit',
+  env: { ...process.env }
+});
 
 // Start OTP Worker
 const otpWorker = spawn('node', [path.join(__dirname, 'jobs/worker/otpWorker.js')], {
