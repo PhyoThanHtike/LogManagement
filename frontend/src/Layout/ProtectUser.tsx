@@ -1,7 +1,6 @@
 import React, { type ReactNode } from "react";
 import { useUser } from "@/store/UserStore";
-import { Navigate, Outlet } from "react-router-dom";
-// import { toast } from "sonner";
+import { Outlet } from "react-router-dom";
 import ErrorPage from "@/Pages/ErrorPage";
 
 interface ProtectedRouteProps {
@@ -10,7 +9,6 @@ interface ProtectedRouteProps {
 
 const ProtectRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   const user = useUser();
-//   const location = useLocation();
 
   console.log(user);
 

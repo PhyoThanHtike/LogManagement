@@ -5,14 +5,17 @@
   "type": "module",
   "scripts": {
     "test": "NODE_OPTIONS=--experimental-vm-modules jest --runInBand",
-    "start": "node src/server.js",
+    "start": "node src/start-combined.js",
+    "start:http": "node src/server.js",
     "start:syslog": "node src/syslog.js",
+    "start:otp": "node src/jobs/worker/otpWorker.js",
     "dev:http": "nodemon src/server.js",
     "dev:syslog": "nodemon src/syslog.js",
     "otp": "nodemon src/jobs/worker/otpWorker.js",
     "seed": "node src/seeds/seed.js",
     "db:seed": "node src/seed.js",
-    "dev": "concurrently -k -n \"HTTP,SYSLOG,OTP\" \"npm:dev:http\" \"npm:dev:syslog\" \"npm:otp\""
+    "dev": "concurrently -k -n \"HTTP,SYSLOG,OTP\" \"npm:dev:http\" \"npm:dev:syslog\" \"npm:otp\"",
+    "postinstall": "prisma generate"
   },
   "keywords": [],
   "author": "",

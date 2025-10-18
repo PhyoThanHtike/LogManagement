@@ -1,18 +1,37 @@
 import "./App.css";
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import {
+  createBrowserRouter,
+  RouterProvider,
+} from "react-router-dom";
+import { Suspense, lazy } from "react";
+import { motion } from "framer-motion";
+
+// Layouts
 import MainLayout from "./Layout/MainLayout";
-import Dashboard from "./Pages/Dashboard";
-import { Suspense } from "react";
-import Auth from "./Pages/Auth/Auth";
-import ErrorPage from "./Pages/ErrorPage";
-import RegisterOTPVerify from "./Pages/Auth/VerifyOTP";
-import ForgotPassword from "./Pages/Auth/ForgotPassword";
-import ResetPassword from "./Pages/Auth/ResetPassword";
-import Management from "./Pages/Management";
 import ProtectRoute from "./Layout/ProtectRoute";
 import ProtectUser from "./Layout/ProtectUser";
 
-// triggering CI
+// Lazy-loaded pages for better performance
+const Dashboard = lazy(() => import("./Pages/Dashboard"));
+const Auth = lazy(() => import("./Pages/Auth/Auth"));
+const ErrorPage = lazy(() => import("./Pages/ErrorPage"));
+const RegisterOTPVerify = lazy(() => import("./Pages/Auth/VerifyOTP"));
+const ForgotPassword = lazy(() => import("./Pages/Auth/ForgotPassword"));
+const ResetPassword = lazy(() => import("./Pages/Auth/ResetPassword"));
+const Management = lazy(() => import("./Pages/Management"));
+
+// Elegant animated loader
+const LoadingScreen = () => (
+  <div className="flex items-center justify-center h-screen bg-gray-50">
+    <motion.div
+      className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full"
+      animate={{ rotate: 360 }}
+      transition={{ duration: 0.8, repeat: Infinity, ease: "linear" }}
+    />
+  </div>
+);
+
+// Router setup
 const router = createBrowserRouter([
   {
     path: "/",
@@ -20,15 +39,12 @@ const router = createBrowserRouter([
       <ProtectRoute>
         <MainLayout />
       </ProtectRoute>
-    ), // <Outlet /> renders here
+    ),
     errorElement: <ErrorPage />,
     children: [
+      { path: "/", element: <Dashboard /> },
       {
-        path: "",
-        element: <Dashboard />,
-      },
-      {
-        path: "management",
+        path: "/management",
         element: (
           <ProtectUser>
             <Management />
@@ -37,31 +53,17 @@ const router = createBrowserRouter([
       },
     ],
   },
-  {
-    path: "auth",
-    element: <Auth />,
-  },
-  {
-    path: "forgotPassword",
-    element: <ForgotPassword />,
-  },
-  {
-    path: "resetPassword",
-    element: <ResetPassword />,
-  },
-  {
-    path: "verifyOTP/:purpose",
-    element: <RegisterOTPVerify />,
-  },
+  { path: "/auth", element: <Auth /> },
+  { path: "/forgotPassword", element: <ForgotPassword /> },
+  { path: "/resetPassword", element: <ResetPassword /> },
+  { path: "/verifyOTP/:purpose", element: <RegisterOTPVerify /> },
 ]);
 
 function App() {
   return (
-    <>
-      <Suspense fallback={<div>Loading...</div>}>
-        <RouterProvider router={router} />
-      </Suspense>
-    </>
+    <Suspense fallback={<LoadingScreen />}>
+      <RouterProvider router={router} />
+    </Suspense>
   );
 }
 

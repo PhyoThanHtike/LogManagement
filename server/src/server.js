@@ -24,12 +24,16 @@ const __dirname = path.dirname(__filename);
 
 // ---------------- HTTP MIDDLEWARE ----------------
 app.use(helmet());
+
 app.use(
   cors({
     origin:
       NODE_ENV === "production"
-        ? process.env.CLIENT_URL // e.g., "https://your-frontend.vercel.app"
-        : "http://localhost:5173",
+        ? [
+            process.env.CLIENT_URL, // Your Vercel frontend
+            /\.vercel\.app$/, // Allow all Vercel preview deployments
+          ]
+        : ["http://localhost:5173", "http://localhost:5174"],
     credentials: true,
     allowedHeaders: ["Content-Type", "Authorization"],
   })
@@ -44,18 +48,22 @@ app.use("/api/auth", authRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/user", userRoutes);
 
-// ---------------- STATIC FRONTEND (optional) ----------------
-// When you deploy your frontend build later, uncomment this block:
-if (NODE_ENV === "production") {
-  const clientPath = path.join(__dirname, "client", "dist"); // adjust if needed
-  app.use(express.static(clientPath));
+// // ---------------- STATIC FRONTEND ----------------
+// if (NODE_ENV === "production") {
+//   const clientPath = path.join(__dirname, "client", "dist"); // adjust if needed
+//   app.use(express.static(clientPath));
 
-  app.get("*", (_, res) => {
-    res.sendFile(path.join(clientPath, "index.html"));
-  });
-}
+//   app.get("*", (_, res) => {
+//     res.sendFile(path.join(clientPath, "index.html"));
+//   });
+// }
 
 // ---------------- HTTP SERVER ----------------
+// Health check endpoint for Render
+app.get("/health", (req, res) => {
+  res.status(200).json({ status: "ok", timestamp: new Date().toISOString() });
+});
+
 const server = app.listen(PORT, () => {
   console.log(`✅ Server running on port ${PORT} in ${NODE_ENV} mode`);
 });

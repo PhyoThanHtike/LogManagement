@@ -1,7 +1,6 @@
 import React, { type ReactNode } from "react";
 import { useUserStore } from "@/store/UserStore";
 import { Navigate, Outlet, useLocation } from "react-router-dom";
-import { toast } from "sonner";
 
 interface ProtectedRouteProps {
   children?: ReactNode;
