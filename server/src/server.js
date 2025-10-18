@@ -31,7 +31,7 @@ app.use(
       NODE_ENV === "production"
         ? [
             process.env.CLIENT_URL, // Your Vercel frontend
-            /\.vercel\.app$/, // Allow all Vercel preview deployments
+            "https://log-management-steel.vercel.app",
           ]
         : ["http://localhost:5173", "http://localhost:5174"],
     credentials: true,
