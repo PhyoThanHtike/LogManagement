@@ -22,6 +22,10 @@ console.log('CLIENT_URL:', process.env.CLIENT_URL);
 
 // ---------------- HTTP MIDDLEWARE ----------------
 app.use(helmet());
+// If running behind a proxy (Heroku/Render/Vercel/NGINX), enable trust proxy
+if (NODE_ENV === "production") {
+  app.set("trust proxy", 1);
+}
 app.use(
   cors({
     origin: function (origin, callback) {
@@ -36,8 +40,8 @@ app.use(
             'http://localhost:3000'
           ];
 
-      console.log('📍 Request origin:', origin);
-      console.log('✅ Allowed origins:', allowedOrigins);
+      // console.log('📍 Request origin:', origin);
+      // console.log('✅ Allowed origins:', allowedOrigins);
 
       if (!origin) return callback(null, true);
       
