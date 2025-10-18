@@ -24,9 +24,9 @@ export const generateToken = (userId, res) => {
   };
 
   // Only attach domain if explicitly configured (avoid setting to undefined)
-  if (process.env.COOKIE_DOMAIN) {
-    cookieOptions.domain = process.env.COOKIE_DOMAIN;
-  }
+  // if (process.env.COOKIE_DOMAIN) {
+  //   cookieOptions.domain = process.env.COOKIE_DOMAIN;
+  // }
 
   res.cookie("jwt", token, cookieOptions);
 
@@ -49,9 +49,9 @@ export const clearToken = (res) => {
     path: "/",
   };
 
-  if (process.env.COOKIE_DOMAIN) {
-    cookieOptions.domain = process.env.COOKIE_DOMAIN;
-  }
+  // if (process.env.COOKIE_DOMAIN) {
+  //   cookieOptions.domain = process.env.COOKIE_DOMAIN;
+  // }
 
   res.cookie("jwt", "", cookieOptions);
 };
