@@ -12,20 +12,12 @@ import { SignOut } from "@/apiEndpoints/Auth";
 import CustomAlertDialog from "@/AppComponents/Dialogs/CustomAlertDialog";
 
 const Navbar = () => {
-  // const userId = useSelector((state: any) => state.user.userId);
-  // const profilePicture = useSelector((state: any)=> state.user.profilePicture);
-
   const user = useUser();
   const clearUser = useUserStore.getState().clearUser;
   console.log(user);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
-  // const [activeLink, setActiveLink] = useState("");
-
-  // const handleTenantChange = (value: string) => {
-  //   setTenant(value);
-  // };
 
   const filters = useFilterStore();
   useEffect(() => {
@@ -173,13 +165,16 @@ const Navbar = () => {
                     >
                       Dashboard
                     </Link>
-                    <Link
-                      to="/management"
-                      className="block px-4 py-3 text-sm text-gray-300 hover:bg-gray-700/50 transition-all"
-                      onClick={() => setIsDropdownOpen(false)}
-                    >
-                      Management
-                    </Link>
+                    {user.role === "ADMIN" && (
+                      <Link
+                        to="/management"
+                        className="block px-4 py-3 text-sm text-gray-300 hover:bg-gray-700/50 transition-all"
+                        onClick={() => setIsDropdownOpen(false)}
+                      >
+                        Management
+                      </Link>
+                    )}
+
                     <CustomAlertDialog
                       onLogOut={handleSignOut}
                       trigger={

@@ -26,6 +26,7 @@ import {
 import CustomAlertDialog from "../Dialogs/CustomAlertDialog";
 import { toast } from "sonner";
 import { invalidateLogsAlerts } from "@/query/queryClient";
+import { useState, useMemo, useCallback, useEffect } from "react";
 
 // Types
 interface Log {
@@ -186,6 +187,10 @@ const getActionConfig = (action: string | null) => {
   );
 };
 
+// Constants for pagination
+const INITIAL_ROWS = 10;
+const LOAD_MORE_ROWS = 5;
+
 const LogsTable = ({
   logs,
   currentTenant,
@@ -193,9 +198,29 @@ const LogsTable = ({
   onDeleteLog,
   isLoading = false,
 }: LogsTableProps) => {
-  // const [deletingIds, setDeletingIds] = useState<Set<string>>(new Set());
+  const [visibleRows, setVisibleRows] = useState(INITIAL_ROWS);
 
-    const handleResultToasts = (
+  // Reset visible rows when logs change
+  useEffect(() => {
+    setVisibleRows(INITIAL_ROWS);
+  }, [logs]);
+
+  // Memoize the visible logs to prevent unnecessary recalculations
+  const visibleLogs = useMemo(() => {
+    return logs.slice(0, visibleRows);
+  }, [logs, visibleRows]);
+
+  // Check if there are more logs to load
+  const hasMoreLogs = useMemo(() => {
+    return visibleRows < logs.length;
+  }, [visibleRows, logs.length]);
+
+  // Handle loading more rows
+  const handleLoadMore = useCallback(() => {
+    setVisibleRows(prev => prev + LOAD_MORE_ROWS);
+  }, []);
+
+  const handleResultToasts = useCallback((
     result: any,
     successMsg: string,
     failMsgFallback: string
@@ -218,9 +243,12 @@ const LogsTable = ({
 
     // otherwise unknown return value -> treat as success
     toast.success(successMsg);
-  };
-  const columns = [
+  }, []);
+
+  // Memoize columns configuration
+  const columns = useMemo(() => [
     { key: "date", label: "Date" },
+    { key: "tenant", label: "Tenant" }, // Added tenant column
     { key: "user", label: "User" },
     { key: "srcIp", label: "IP Address" },
     { key: "source", label: "Source" },
@@ -228,8 +256,9 @@ const LogsTable = ({
     { key: "severity", label: "Severity" },
     { key: "action", label: "Action" },
     ...(userRole === "ADMIN" ? [{ key: "activity", label: "Activity" }] : []),
-  ];
+  ], [userRole]);
 
+  // Loading state
   if (isLoading) {
     return (
       <div className="rounded-md border">
@@ -274,7 +303,7 @@ const LogsTable = ({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {logs.length === 0 ? (
+            {visibleLogs.length === 0 ? (
               <TableRow>
                 <TableCell
                   colSpan={columns.length}
@@ -284,7 +313,7 @@ const LogsTable = ({
                 </TableCell>
               </TableRow>
             ) : (
-              logs.map((log, index) => {
+              visibleLogs.map((log, index) => {
                 const severityConfig = getSeverityConfig(log.severity);
                 const SeverityIcon = severityConfig.icon;
                 const actionConfig = getActionConfig(log.action);
@@ -297,8 +326,13 @@ const LogsTable = ({
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.3, delay: index * 0.05 }}
                   >
-                    <TableCell className="font-medium">
+                    <TableCell className="font-medium py-6">
                       {formatDate(log.timestamp)}
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant="secondary" className="font-normal">
+                        {log.tenant}
+                      </Badge>
                     </TableCell>
                     <TableCell>
                       {log.user || (
@@ -385,6 +419,36 @@ const LogsTable = ({
           </TableBody>
         </Table>
       </div>
+
+      {/* Load More Button */}
+      {hasMoreLogs && (
+        <motion.div 
+          className="flex justify-center mt-4"
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+        >
+          <Button
+            onClick={handleLoadMore}
+            variant="outline"
+            className="px-6"
+          >
+            View More ({logs.length - visibleRows} remaining)
+          </Button>
+        </motion.div>
+      )}
+
+      {/* Show message when all logs are loaded */}
+      {!hasMoreLogs && logs.length > INITIAL_ROWS && (
+        <motion.div 
+          className="text-center mt-4 text-muted-foreground text-sm"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.3 }}
+        >
+          All logs loaded ({logs.length} total)
+        </motion.div>
+      )}
     </motion.div>
   );
 };

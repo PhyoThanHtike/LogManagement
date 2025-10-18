@@ -21,7 +21,7 @@ const fadeInVariants = {
 const LoadingScreen: React.FC = () => {
   return (
     <motion.div
-      className="fixed inset-0 flex flex-col items-center justify-center bg-gray-950 text-white z-50"
+      className="fixed inset-0 flex flex-col items-center justify-center bg-gray-150 dark:bg-gray-950 text-white z-50"
       variants={fadeInVariants}
       initial="hidden"
       animate="visible"
@@ -33,12 +33,12 @@ const LoadingScreen: React.FC = () => {
         animate="animate"
       />
       <motion.p
-        className="mt-6 text-lg text-gray-300 font-medium text-center max-w-sm"
+        className="mt-6 text-lg text-gray-900 dark:text-gray-100 font-medium text-center max-w-sm"
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3 }}
       >
-        While the charts and tables are loading, a loading screen will be displayed.
+        Loading Up For You. Please Wait a moment.
       </motion.p>
     </motion.div>
   );

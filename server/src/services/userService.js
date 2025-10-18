@@ -112,7 +112,7 @@ return await prisma.user.delete({
     // Update and return the updated user
     return await prisma.user.update({
       where: { id },
-      data: { status: newStatus },
+      data: { status: newStatus, loginAttempts: 0 },
     });
   }
 

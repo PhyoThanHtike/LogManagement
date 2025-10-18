@@ -37,13 +37,15 @@ export default function ErrorPage() {
         </CardHeader>
         <CardContent className="space-y-6">
           <p className="text-gray-700">{message}</p>
-          <Button
-            onClick={() => (window.location.href = "/")}
-            className="flex items-center gap-2"
-          >
-            <Home className="w-4 h-4" />
-            Go Back Home
-          </Button>
+          <div className="flex items-center justify-center">
+            <Button
+              onClick={() => (window.location.href = "/")}
+              className="flex items-center gap-2"
+            >
+              <Home className="w-4 h-4" />
+              Go Back Home
+            </Button>
+          </div>
         </CardContent>
       </Card>
     </motion.div>

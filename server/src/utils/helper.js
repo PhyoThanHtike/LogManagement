@@ -85,3 +85,4 @@ export function parseTimestamp(timestamp) {
     return new Date();
   }
 }
+

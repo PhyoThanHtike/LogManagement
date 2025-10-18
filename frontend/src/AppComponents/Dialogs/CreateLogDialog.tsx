@@ -15,7 +15,7 @@ import SourceDropdown from "../Dropdowns/SourceDropdown";
 import TenantDropdown from "../Dropdowns/TenantDropdown";
 import { createLog } from "@/apiEndpoints/Logs";
 import { toast } from "sonner";
-import { invalidateLogsAlerts } from "@/query/queryClient";
+// import { invalidateLogsAlerts } from "@/query/queryClient";
 
 interface CreateLogDialogProps {
   trigger?: React.ReactNode;
@@ -34,63 +34,35 @@ export default function CreateLogDialog({ trigger }: CreateLogDialogProps) {
   const [formData, setFormData] = useState<LogFormData>({
     tenant: "TENANT1",
     source: "API",
-    payload: {
-      action: "LOGIN",
-      severity: 5,
-      event_type: "application",
-      user: "john.doe@example.com",
-      ip: "192.168.1.100",
-      reason: "User authentication",
-      src_ip: "192.168.1.100",
-      dst_ip: "10.0.0.1",
-      src_port: 54321,
-      dst_port: 443,
-      protocol: "TCP",
-      "cloud.account_id": "123456789012",
-      "cloud.region": "us-east-1",
-      "cloud.service": "s3",
-      workload: "Exchange",
-      event_id: "4624",
-      host: "WORKSTATION-01",
-      process: "explorer.exe"
-    },
+    payload: {},
   });
 
-  // Reset form when dialog opens/closes
+  // Reset form when dialog closes
   useEffect(() => {
-    if (open) {
+    if (!open) {
       setFormData({
         tenant: "TENANT1",
         source: "API",
-        payload: {
-          action: "LOGIN",
-          severity: 5,
-          event_type: "application",
-          user: "john.doe@example.com",
-          ip: "192.168.1.100",
-          reason: "User authentication",
-          src_ip: "192.168.1.100",
-          dst_ip: "10.0.0.1",
-          src_port: 54321,
-          dst_port: 443,
-          protocol: "TCP",
-          "cloud.account_id": "123456789012",
-          "cloud.region": "us-east-1",
-          "cloud.service": "s3",
-          workload: "Exchange",
-          event_id: "4624",
-          host: "WORKSTATION-01",
-          process: "explorer.exe"
-        },
+        payload: {},
       });
     }
   }, [open]);
 
   const handleSourceChange = (source: string) => {
+    const defaultPayloads = {
+      API: { action: "LOGIN", severity: 5, event_type: "application", user: "john.doe@example.com", ip: "192.168.1.100", reason: "User authentication" },
+      FIREWALL: { action: "ALLOW", src_ip: "192.168.1.100", dst_ip: "10.0.0.1", src_port: 54321, dst_port: 443, protocol: "TCP", severity: 5, reason: "Firewall rule match", eventType:"Firewall Event" },
+      NETWORK: { action: "ALLOW", src_ip: "192.168.1.100", dst_ip: "10.0.0.1", src_port: 54321, dst_port: 443, protocol: "TCP", severity: 5, reason: "Network event" },
+      AWS: { action: "CREATE", user: "arn:aws:iam::123456789012:user/john.doe", ip: "192.168.1.100", "cloud.account_id": "123456789012", "cloud.region": "us-east-1", "cloud.service": "s3" },
+      M365: { action: "LOGIN", user: "john.doe@company.com", ip: "192.168.1.100", workload: "Exchange" },
+      AD: { action: "LOGIN", event_id: "4624", event_type: "application", user: "DOMAIN\\john.doe", host: "WORKSTATION-01", ip: "192.168.1.100" },
+      CROWDSTRIKE: { action: "ALERT", host: "WORKSTATION-01", severity: 7, event_type: "detection", process: "explorer.exe", ip: "192.168.1.100" }
+    };
+
     setFormData((prev) => ({
       ...prev,
       source,
-      payload: {}, // Reset payload when source changes
+      payload: defaultPayloads[source as keyof typeof defaultPayloads] || {}
     }));
   };
 
@@ -98,7 +70,6 @@ export default function CreateLogDialog({ trigger }: CreateLogDialogProps) {
     setFormData((prev) => ({
       ...prev,
       tenant,
-      payload: {}, // Reset payload when source changes
     }));
   };
 
@@ -112,7 +83,7 @@ export default function CreateLogDialog({ trigger }: CreateLogDialogProps) {
     }));
   };
 
-  const handleSubmit = useCallback( async (e: React.FormEvent) => {
+  const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
@@ -124,7 +95,7 @@ export default function CreateLogDialog({ trigger }: CreateLogDialogProps) {
 
       if (response.success) {
         toast.success("Log created successfully!");
-        await invalidateLogsAlerts("");
+        // await invalidateLogsAlerts("");
         setOpen(false);
       } else {
         toast.error(response.message || "Failed to create log");
@@ -136,7 +107,7 @@ export default function CreateLogDialog({ trigger }: CreateLogDialogProps) {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [formData]); // Added formData as dependency
 
   const renderPayloadFields = () => {
     switch (formData.source) {
@@ -149,7 +120,7 @@ export default function CreateLogDialog({ trigger }: CreateLogDialogProps) {
                 <Input
                   id="action"
                   placeholder="e.g., LOGIN, ALERT, ALLOW, DENY, BLOCK"
-                  value={formData.payload.action || "LOGIN"}
+                  value={formData.payload.action || ""}
                   onChange={(e) =>
                     handlePayloadChange("action", e.target.value)
                   }
@@ -165,7 +136,7 @@ export default function CreateLogDialog({ trigger }: CreateLogDialogProps) {
                   min="0"
                   max="10"
                   placeholder="0-10"
-                  value={formData.payload.severity || 5}
+                  value={formData.payload.severity || ""}
                   onChange={(e) =>
                     handlePayloadChange("severity", parseInt(e.target.value))
                   }
@@ -176,7 +147,7 @@ export default function CreateLogDialog({ trigger }: CreateLogDialogProps) {
                 <Input
                   id="eventType"
                   placeholder="e.g., application"
-                  value={formData.payload.event_type || "application"}
+                  value={formData.payload.event_type || ""}
                   onChange={(e) =>
                     handlePayloadChange("event_type", e.target.value)
                   }
@@ -188,7 +159,7 @@ export default function CreateLogDialog({ trigger }: CreateLogDialogProps) {
               <Input
                 id="user"
                 placeholder="Username"
-                value={formData.payload.user || "john.doe@example.com"}
+                value={formData.payload.user || ""}
                 onChange={(e) => handlePayloadChange("user", e.target.value)}
               />
             </div>
@@ -197,7 +168,7 @@ export default function CreateLogDialog({ trigger }: CreateLogDialogProps) {
               <Input
                 id="srcIp"
                 placeholder="192.168.1.1"
-                value={formData.payload.ip || "192.168.1.100"}
+                value={formData.payload.ip || ""}
                 onChange={(e) => handlePayloadChange("ip", e.target.value)}
               />
             </div>
@@ -206,7 +177,7 @@ export default function CreateLogDialog({ trigger }: CreateLogDialogProps) {
               <Input
                 id="reason"
                 placeholder="Reason for the event"
-                value={formData.payload.reason || "User authentication"}
+                value={formData.payload.reason || ""}
                 onChange={(e) => handlePayloadChange("reason", e.target.value)}
               />
             </div>
@@ -222,7 +193,7 @@ export default function CreateLogDialog({ trigger }: CreateLogDialogProps) {
               <Input
                 id="action"
                 placeholder="e.g., ALLOW, DENY, ALERT, QUARANTINE, BLOCK"
-                value={formData.payload.action || "ALLOW"}
+                value={formData.payload.action || ""}
                 onChange={(e) => handlePayloadChange("action", e.target.value)}
               />
             </div>
@@ -232,7 +203,7 @@ export default function CreateLogDialog({ trigger }: CreateLogDialogProps) {
                 <Input
                   id="srcIp"
                   placeholder="192.168.1.1"
-                  value={formData.payload.src_ip || "192.168.1.100"}
+                  value={formData.payload.src_ip || ""}
                   onChange={(e) =>
                     handlePayloadChange("src_ip", e.target.value)
                   }
@@ -243,7 +214,7 @@ export default function CreateLogDialog({ trigger }: CreateLogDialogProps) {
                 <Input
                   id="dstIp"
                   placeholder="10.0.0.1"
-                  value={formData.payload.dst_ip || "10.0.0.1"}
+                  value={formData.payload.dst_ip || ""}
                   onChange={(e) =>
                     handlePayloadChange("dst_ip", e.target.value)
                   }
@@ -257,7 +228,7 @@ export default function CreateLogDialog({ trigger }: CreateLogDialogProps) {
                   id="srcPort"
                   type="number"
                   placeholder="80"
-                  value={formData.payload.src_port || 54321}
+                  value={formData.payload.src_port || ""}
                   onChange={(e) =>
                     handlePayloadChange("src_port", parseInt(e.target.value))
                   }
@@ -269,7 +240,7 @@ export default function CreateLogDialog({ trigger }: CreateLogDialogProps) {
                   id="dstPort"
                   type="number"
                   placeholder="443"
-                  value={formData.payload.dst_port || 443}
+                  value={formData.payload.dst_port || ""}
                   onChange={(e) =>
                     handlePayloadChange("dst_port", parseInt(e.target.value))
                   }
@@ -282,7 +253,7 @@ export default function CreateLogDialog({ trigger }: CreateLogDialogProps) {
                 <Input
                   id="protocol"
                   placeholder="TCP, UDP, etc."
-                  value={formData.payload.protocol || "TCP"}
+                  value={formData.payload.protocol || ""}
                   onChange={(e) =>
                     handlePayloadChange("protocol", e.target.value)
                   }
@@ -296,7 +267,7 @@ export default function CreateLogDialog({ trigger }: CreateLogDialogProps) {
                   min="0"
                   max="10"
                   placeholder="0-10"
-                  value={formData.payload.severity || 5}
+                  value={formData.payload.severity || ""}
                   onChange={(e) =>
                     handlePayloadChange("severity", parseInt(e.target.value))
                   }
@@ -308,7 +279,7 @@ export default function CreateLogDialog({ trigger }: CreateLogDialogProps) {
               <Input
                 id="reason"
                 placeholder="Firewall rule match or reason"
-                value={formData.payload.reason || "Firewall rule match"}
+                value={formData.payload.reason || ""}
                 onChange={(e) => handlePayloadChange("reason", e.target.value)}
               />
             </div>
@@ -323,7 +294,7 @@ export default function CreateLogDialog({ trigger }: CreateLogDialogProps) {
               <Input
                 id="action"
                 placeholder="e.g., LOGIN, ALLOW, CREATE"
-                value={formData.payload.action || "CREATE"}
+                value={formData.payload.action || ""}
                 onChange={(e) => handlePayloadChange("action", e.target.value)}
               />
             </div>
@@ -332,7 +303,7 @@ export default function CreateLogDialog({ trigger }: CreateLogDialogProps) {
               <Input
                 id="user"
                 placeholder="Username/ARN"
-                value={formData.payload.user || "arn:aws:iam::123456789012:user/john.doe"}
+                value={formData.payload.user || ""}
                 onChange={(e) => handlePayloadChange("user", e.target.value)}
               />
             </div>
@@ -341,7 +312,7 @@ export default function CreateLogDialog({ trigger }: CreateLogDialogProps) {
               <Input
                 id="srcIp"
                 placeholder="192.168.1.1"
-                value={formData.payload.ip || "192.168.1.100"}
+                value={formData.payload.ip || ""}
                 onChange={(e) => handlePayloadChange("ip", e.target.value)}
               />
             </div>
@@ -351,7 +322,7 @@ export default function CreateLogDialog({ trigger }: CreateLogDialogProps) {
                 <Input
                   id="cloudAccountId"
                   placeholder="AWS Account ID"
-                  value={formData.payload["cloud.account_id"] || "123456789012"}
+                  value={formData.payload["cloud.account_id"] || ""}
                   onChange={(e) =>
                     handlePayloadChange("cloud.account_id", e.target.value)
                   }
@@ -362,7 +333,7 @@ export default function CreateLogDialog({ trigger }: CreateLogDialogProps) {
                 <Input
                   id="cloudRegion"
                   placeholder="us-east-1"
-                  value={formData.payload["cloud.region"] || "us-east-1"}
+                  value={formData.payload["cloud.region"] || ""}
                   onChange={(e) =>
                     handlePayloadChange("cloud.region", e.target.value)
                   }
@@ -374,7 +345,7 @@ export default function CreateLogDialog({ trigger }: CreateLogDialogProps) {
               <Input
                 id="cloudService"
                 placeholder="e.g., s3, ec2"
-                value={formData.payload["cloud.service"] || "s3"}
+                value={formData.payload["cloud.service"] || ""}
                 onChange={(e) =>
                   handlePayloadChange("cloud.service", e.target.value)
                 }
@@ -391,7 +362,7 @@ export default function CreateLogDialog({ trigger }: CreateLogDialogProps) {
               <Input
                 id="action"
                 placeholder="e.g., LOGIN, ALLOW"
-                value={formData.payload.action || "LOGIN"}
+                value={formData.payload.action || ""}
                 onChange={(e) => handlePayloadChange("action", e.target.value)}
               />
             </div>
@@ -400,7 +371,7 @@ export default function CreateLogDialog({ trigger }: CreateLogDialogProps) {
               <Input
                 id="user"
                 placeholder="User email"
-                value={formData.payload.user || "john.doe@company.com"}
+                value={formData.payload.user || ""}
                 onChange={(e) => handlePayloadChange("user", e.target.value)}
               />
             </div>
@@ -409,7 +380,7 @@ export default function CreateLogDialog({ trigger }: CreateLogDialogProps) {
               <Input
                 id="srcIp"
                 placeholder="192.168.1.1"
-                value={formData.payload.ip || "192.168.1.100"}
+                value={formData.payload.ip || ""}
                 onChange={(e) => handlePayloadChange("ip", e.target.value)}
               />
             </div>
@@ -418,7 +389,7 @@ export default function CreateLogDialog({ trigger }: CreateLogDialogProps) {
               <Input
                 id="workload"
                 placeholder="e.g., Exchange, SharePoint"
-                value={formData.payload.workload || "Exchange"}
+                value={formData.payload.workload || ""}
                 onChange={(e) =>
                   handlePayloadChange("workload", e.target.value)
                 }
@@ -435,41 +406,41 @@ export default function CreateLogDialog({ trigger }: CreateLogDialogProps) {
               <Input
                 id="action"
                 placeholder="e.g., LOGIN, ALLOW"
-                value={formData.payload.action || "LOGIN"}
+                value={formData.payload.action || ""}
                 onChange={(e) => handlePayloadChange("action", e.target.value)}
               />
             </div>
             <div className="grid grid-cols-2 gap-4">
-               <div className="space-y-2">
-              <Label htmlFor="eventId">Event ID</Label>
-              <Input
-                id="eventId"
-                placeholder="e.g., 4624, 4625"
-                value={formData.payload.event_id || "4624"}
-                onChange={(e) =>
-                  handlePayloadChange("event_id", e.target.value)
-                }
-              />
-            </div>
+              <div className="space-y-2">
+                <Label htmlFor="eventId">Event ID</Label>
+                <Input
+                  id="eventId"
+                  placeholder="e.g., 4624, 4625"
+                  value={formData.payload.event_id || ""}
+                  onChange={(e) =>
+                    handlePayloadChange("event_id", e.target.value)
+                  }
+                />
+              </div>
               <div className="space-y-2">
                 <Label htmlFor="eventType">Event Type</Label>
                 <Input
                   id="eventType"
                   placeholder="e.g., application"
-                  value={formData.payload.event_type || "application"}
+                  value={formData.payload.event_type || ""}
                   onChange={(e) =>
                     handlePayloadChange("event_type", e.target.value)
                   }
                 />
               </div>
             </div>
-            
+
             <div className="space-y-2">
               <Label htmlFor="user">User</Label>
               <Input
                 id="user"
                 placeholder="Username"
-                value={formData.payload.user || "DOMAIN\\john.doe"}
+                value={formData.payload.user || ""}
                 onChange={(e) => handlePayloadChange("user", e.target.value)}
               />
             </div>
@@ -478,7 +449,7 @@ export default function CreateLogDialog({ trigger }: CreateLogDialogProps) {
               <Input
                 id="host"
                 placeholder="Hostname"
-                value={formData.payload.host || "WORKSTATION-01"}
+                value={formData.payload.host || ""}
                 onChange={(e) => handlePayloadChange("host", e.target.value)}
               />
             </div>
@@ -487,7 +458,7 @@ export default function CreateLogDialog({ trigger }: CreateLogDialogProps) {
               <Input
                 id="srcIp"
                 placeholder="192.168.1.1"
-                value={formData.payload.ip || "192.168.1.100"}
+                value={formData.payload.ip || ""}
                 onChange={(e) => handlePayloadChange("ip", e.target.value)}
               />
             </div>
@@ -502,7 +473,7 @@ export default function CreateLogDialog({ trigger }: CreateLogDialogProps) {
               <Input
                 id="action"
                 placeholder="e.g., ALERT, DENY, BLOCK, QUARANTINE"
-                value={formData.payload.action || "ALERT"}
+                value={formData.payload.action || ""}
                 onChange={(e) => handlePayloadChange("action", e.target.value)}
               />
             </div>
@@ -511,7 +482,7 @@ export default function CreateLogDialog({ trigger }: CreateLogDialogProps) {
               <Input
                 id="host"
                 placeholder="Hostname"
-                value={formData.payload.host || "WORKSTATION-01"}
+                value={formData.payload.host || ""}
                 onChange={(e) => handlePayloadChange("host", e.target.value)}
               />
             </div>
@@ -524,7 +495,7 @@ export default function CreateLogDialog({ trigger }: CreateLogDialogProps) {
                   min="0"
                   max="10"
                   placeholder="0-10"
-                  value={formData.payload.severity || 7}
+                  value={formData.payload.severity || ""}
                   onChange={(e) =>
                     handlePayloadChange("severity", parseInt(e.target.value))
                   }
@@ -535,7 +506,7 @@ export default function CreateLogDialog({ trigger }: CreateLogDialogProps) {
                 <Input
                   id="eventType"
                   placeholder="e.g., application"
-                  value={formData.payload.event_type || "detection"}
+                  value={formData.payload.event_type || ""}
                   onChange={(e) =>
                     handlePayloadChange("event_type", e.target.value)
                   }
@@ -547,7 +518,7 @@ export default function CreateLogDialog({ trigger }: CreateLogDialogProps) {
               <Input
                 id="process"
                 placeholder="Process name"
-                value={formData.payload.process || "explorer.exe"}
+                value={formData.payload.process || ""}
                 onChange={(e) => handlePayloadChange("process", e.target.value)}
               />
             </div>
@@ -556,7 +527,7 @@ export default function CreateLogDialog({ trigger }: CreateLogDialogProps) {
               <Input
                 id="srcIp"
                 placeholder="192.168.1.1"
-                value={formData.payload.ip || "192.168.1.100"}
+                value={formData.payload.ip || ""}
                 onChange={(e) => handlePayloadChange("ip", e.target.value)}
               />
             </div>

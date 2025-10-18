@@ -1,52 +1,4 @@
-// syslog.js
-// import dotenv from 'dotenv';
-// import dgram from 'dgram';
-// import fs from 'fs';
-// import path from 'path';
 
-// dotenv.config();
-// const SYSLOG_PORT = Number(process.env.SYSLOG_PORT) || 514;
-
-// const syslogServer = dgram.createSocket('udp4');
-
-// // Ensure logs directory exists
-// const logsDir = path.resolve('./logs');
-// if (!fs.existsSync(logsDir)) fs.mkdirSync(logsDir, { recursive: true });
-
-// syslogServer.on('message', (msg, rinfo) => {
-//   const message = msg.toString().trim();
-//   console.log(`📥 Syslog from ${rinfo.address}:${rinfo.port}`);
-//   console.log(message);
-
-//   const logLine = `[${new Date().toISOString()}] ${rinfo.address}:${rinfo.port} ${message}\n`;
-//   const filePath = path.join(logsDir, 'syslog.log');
-
-//   // append async to avoid blocking
-//   fs.appendFile(filePath, logLine, 'utf8', (err) => {
-//     if (err) console.error('Failed to write syslog:', err);
-//   });
-// });
-
-// syslogServer.on('listening', () => {
-//   const address = syslogServer.address();
-//   console.log(`✅ Syslog server listening on ${address.address}:${address.port}`);
-// });
-
-// syslogServer.on('error', (err) => {
-//   console.error('❌ Syslog server error:', err);
-//   syslogServer.close();
-// });
-
-// // Bind
-// syslogServer.bind(SYSLOG_PORT, '0.0.0.0');
-
-// // graceful shutdown
-// process.on('SIGINT', () => {
-//   console.log('Shutting down syslog server...');
-//   syslogServer.close(() => process.exit(0));
-// });
-
-// src/syslog.js
 import dotenv from "dotenv";
 import dgram from "dgram";
 import fs from "fs";
@@ -189,3 +141,52 @@ function shutdown() {
 process.on("SIGINT", shutdown);
 process.on("SIGTERM", shutdown);
 
+// syslog.js
+// import dotenv from 'dotenv';
+// import dgram from 'dgram';
+// import fs from 'fs';
+// import path from 'path';
+
+// dotenv.config();
+// const SYSLOG_PORT = Number(process.env.SYSLOG_PORT) || 514;
+
+// const syslogServer = dgram.createSocket('udp4');
+
+// // Ensure logs directory exists
+// const logsDir = path.resolve('./logs');
+// if (!fs.existsSync(logsDir)) fs.mkdirSync(logsDir, { recursive: true });
+
+// syslogServer.on('message', (msg, rinfo) => {
+//   const message = msg.toString().trim();
+//   console.log(`📥 Syslog from ${rinfo.address}:${rinfo.port}`);
+//   console.log(message);
+
+//   const logLine = `[${new Date().toISOString()}] ${rinfo.address}:${rinfo.port} ${message}\n`;
+//   const filePath = path.join(logsDir, 'syslog.log');
+
+//   // append async to avoid blocking
+//   fs.appendFile(filePath, logLine, 'utf8', (err) => {
+//     if (err) console.error('Failed to write syslog:', err);
+//   });
+// });
+
+// syslogServer.on('listening', () => {
+//   const address = syslogServer.address();
+//   console.log(`✅ Syslog server listening on ${address.address}:${address.port}`);
+// });
+
+// syslogServer.on('error', (err) => {
+//   console.error('❌ Syslog server error:', err);
+//   syslogServer.close();
+// });
+
+// // Bind
+// syslogServer.bind(SYSLOG_PORT, '0.0.0.0');
+
+// // graceful shutdown
+// process.on('SIGINT', () => {
+//   console.log('Shutting down syslog server...');
+//   syslogServer.close(() => process.exit(0));
+// });
+
+// src/syslog.js

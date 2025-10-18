@@ -102,7 +102,7 @@ export function normalizeData(tenant, source, payload) {
         out.protocol = payload?.protocol;
         out.action = toAction(payload?.action);
         out.severity = to0to10(payload?.severity);
-        out.eventType = payload?.policy;
+        // out.eventType = payload?.policy;
         out.reason = payload?.msg;
         out.reason = payload?.reason;
       }

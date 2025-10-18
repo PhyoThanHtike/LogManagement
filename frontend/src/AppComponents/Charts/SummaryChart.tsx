@@ -73,7 +73,7 @@ const SummaryChart: React.FC<SummaryChartProps> = ({ data }) => {
       variants={containerVariants}
       initial="hidden"
       animate="visible"
-      className="grid grid-cols-1 lg:grid-cols-2 gap-6 py-6 w-full"
+      className="grid grid-cols-1 lg:grid-cols-2 gap-6 pt-6 w-full"
     >
       {/* Sources Chart - Using Bar Chart for better comparison */}
       <motion.div variants={itemVariants}>

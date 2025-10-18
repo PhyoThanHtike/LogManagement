@@ -9,12 +9,18 @@ import RegisterOTPVerify from "./Pages/Auth/VerifyOTP";
 import ForgotPassword from "./Pages/Auth/ForgotPassword";
 import ResetPassword from "./Pages/Auth/ResetPassword";
 import Management from "./Pages/Management";
+import ProtectRoute from "./Layout/ProtectRoute";
+import ProtectUser from "./Layout/ProtectUser";
 
 // triggering CI
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <MainLayout />, // <Outlet /> renders here
+    element: (
+      <ProtectRoute>
+        <MainLayout />
+      </ProtectRoute>
+    ), // <Outlet /> renders here
     errorElement: <ErrorPage />,
     children: [
       {
@@ -23,8 +29,12 @@ const router = createBrowserRouter([
       },
       {
         path: "management",
-        element: <Management />,
-      }
+        element: (
+          <ProtectUser>
+            <Management />
+          </ProtectUser>
+        ),
+      },
     ],
   },
   {

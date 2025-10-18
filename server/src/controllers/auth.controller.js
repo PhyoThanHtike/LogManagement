@@ -2,6 +2,7 @@
 import { AuthService } from "../services/authService.js";
 import { addOTPJob } from "../jobs/queue/otpQueue.js";
 import { generateToken, clearToken } from "../utils/jwtUtils.js";
+import { AlertService } from "../services/alertService.js";
 import bcrypt from "bcryptjs";
 import crypto from "crypto";
 
@@ -44,16 +45,17 @@ export const signUp = async (req, res) => {
 
     // Generate OTP
     const otpCode = crypto.randomInt(100000, 999999).toString();
-    
+
     // Store OTP in database
-    await AuthService.createOTPRequest(email, otpCode, 'REGISTRATION');
-    
+    await AuthService.createOTPRequest(email, otpCode, "REGISTRATION");
+
     // Add OTP email to queue
-    await addOTPJob(email, otpCode, 'REGISTRATION');
+    await addOTPJob(email, otpCode, "REGISTRATION");
 
     res.status(201).json({
       success: true,
-      message: "Registration successful. Please check your email for verification code.",
+      message:
+        "Registration successful. Please check your email for verification code.",
       userId: user.id,
     });
   } catch (error) {
@@ -70,7 +72,7 @@ export const verifyOTP = async (req, res) => {
     const { email, otpCode, purpose } = req.body;
 
     const otpRequest = await AuthService.findValidOTP(email, otpCode, purpose);
-    
+
     if (!otpRequest) {
       return res.status(400).json({
         success: false,
@@ -81,7 +83,7 @@ export const verifyOTP = async (req, res) => {
     // Mark OTP as used
     await AuthService.markOTPAsUsed(otpRequest.id);
 
-    if (purpose === 'REGISTRATION') {
+    if (purpose === "REGISTRATION") {
       // Verify user email and activate account
       const user = await AuthService.findUserByEmail(email);
       await AuthService.verifyUserEmail(user.id);
@@ -99,7 +101,7 @@ export const verifyOTP = async (req, res) => {
           role: user.role,
         },
       });
-    } else if (purpose === 'PASSWORD_RESET') {
+    } else if (purpose === "PASSWORD_RESET") {
       // For password reset, just return success - actual reset happens in separate endpoint
       res.json({
         success: true,
@@ -118,6 +120,7 @@ export const verifyOTP = async (req, res) => {
 export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
+    const userIP = req.ip;
 
     const user = await AuthService.findUserByEmail(email);
     if (!user) {
@@ -127,7 +130,7 @@ export const login = async (req, res) => {
       });
     }
 
-    if (user.status !== 'ACTIVE') {
+    if (user.status !== "ACTIVE") {
       return res.status(403).json({
         success: false,
         message: "Account is restricted. Please contact support.",
@@ -144,9 +147,28 @@ export const login = async (req, res) => {
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
       // Increment login attempts
-      await AuthService.updateUser(user.id, {
+      const updatedUser = await AuthService.updateUser(user.id, {
         loginAttempts: user.loginAttempts + 1,
       });
+
+      if (updatedUser.loginAttempts >= 7) {
+        await AuthService.updateUser(updatedUser.id, {
+          status: "RESTRICTED",
+        });
+        const payload = {
+          eventType: "Login Attempts",
+          severity: 9,
+          user: user.name,
+          ip: userIP || "192.168.1.100",
+          action: "ALERT",
+        };
+        await AlertService.loginAlert(user.tenant, payload);
+        return res.status(400).json({
+          success: false,
+          message:
+            "Your Account has been Restricted due to consecutive unsuccessful attempts!",
+        });
+      }
 
       return res.status(400).json({
         success: false,
@@ -196,12 +218,12 @@ export const forgotPassword = async (req, res) => {
 
     // Generate OTP
     const otpCode = crypto.randomInt(100000, 999999).toString();
-    
+
     // Store OTP in database
-    await AuthService.createOTPRequest(email, otpCode, 'PASSWORD_RESET');
-    
+    await AuthService.createOTPRequest(email, otpCode, "PASSWORD_RESET");
+
     // Add OTP email to queue
-    await addOTPJob(email, otpCode, 'PASSWORD_RESET');
+    await addOTPJob(email, otpCode, "PASSWORD_RESET");
 
     res.json({
       success: true,
@@ -226,19 +248,6 @@ export const resetPassword = async (req, res) => {
         message: "Password must be at least 8 characters",
       });
     }
-
-    // Verify OTP first
-    // const otpRequest = await AuthService.findValidOTP(email, otpCode, 'PASSWORD_RESET');
-    
-    // if (!otpRequest) {
-    //   return res.status(400).json({
-    //     success: false,
-    //     message: "Invalid or expired OTP",
-    //   });
-    // }
-
-    // // Mark OTP as used
-    // await AuthService.markOTPAsUsed(otpRequest.id);
 
     // Update password
     const user = await AuthService.findUserByEmail(email);
@@ -276,7 +285,7 @@ export const logOut = (req, res) => {
 export const checkUser = async (req, res) => {
   try {
     const user = req.user;
-    
+
     res.status(200).json({
       success: true,
       user: {
@@ -327,7 +336,7 @@ export const resendOTP = async (req, res) => {
     }
 
     // Check if user exists for registration purpose
-    if (purpose === 'REGISTRATION') {
+    if (purpose === "REGISTRATION") {
       const user = await AuthService.findUserByEmail(email);
       if (!user) {
         return res.status(400).json({
@@ -335,7 +344,7 @@ export const resendOTP = async (req, res) => {
           message: "User not found",
         });
       }
-      
+
       if (user.isVerified) {
         return res.status(400).json({
           success: false,
@@ -346,10 +355,10 @@ export const resendOTP = async (req, res) => {
 
     // Generate new OTP
     const otpCode = crypto.randomInt(100000, 999999).toString();
-    
+
     // Store OTP in database
     await AuthService.createOTPRequest(email, otpCode, purpose);
-    
+
     // Add OTP email to queue
     await addOTPJob(email, otpCode, purpose);
 

@@ -80,18 +80,6 @@ const Dashboard: React.FC = () => {
         <Suspense fallback={<LoadingScreen />}>
           {logsAlertsData && <LogsAlertsTrendChart rawData={logsAlertsData} />}
           {summaryData && <SummaryChart data={summaryData.data} />}
-          {topIPsData && <TopIPSourcesTable data={topIPsData} />}
-          {alertsData && (
-            <AlertsTable
-                currentTenant={filters.tenant}
-              data={alertsData}
-              desc="Recent"
-              userRole={user?.role}
-              onDeleteAlert={handleDeleteAlerts}
-              onResolveAlert={handleResolveAlerts}
-            />
-          )}
-
           {/* Logs Table Section */}
           <Card className="p-6 mt-6 mb-6">
             <CardHeader className="flex mb-6 justify-between items-center">
@@ -131,6 +119,19 @@ const Dashboard: React.FC = () => {
 
             {logsData && <LogsTable currentTenant={filters.tenant} userRole={user?.role} logs={logsData.data} onDeleteLog={handleDeleteLogs} />}
           </Card>
+          {topIPsData && <TopIPSourcesTable data={topIPsData} />}
+          <div className="pb-6">
+          {alertsData && (
+            <AlertsTable
+                currentTenant={filters.tenant}
+              data={alertsData}
+              desc="Recent"
+              userRole={user?.role}
+              onDeleteAlert={handleDeleteAlerts}
+              onResolveAlert={handleResolveAlerts}
+            />
+          )}
+          </div>
         </Suspense>
       </div>
     </div>

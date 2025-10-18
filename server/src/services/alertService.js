@@ -1,6 +1,8 @@
 // services/alertService.js
 import prisma from "../utils/database.js";
 import { LogService } from "./logService.js";
+import { EmailService } from "./emailService.js";
+import { normalizeData } from "../utils/normalizeService.js";
 
 export class AlertService {
   static async createAlertRule(ruleData) {
@@ -143,5 +145,71 @@ export class AlertService {
       date: entry.createdAt.toISOString().split("T")[0],
       alerts: entry._count.id,
     }));
+  }
+
+  static async loginAlert(tenant, payload) {
+    const source = "API";
+
+    try {
+      // Normalize the log data
+      const normalizedLog = normalizeData(tenant, source, payload);
+
+      // Create log in database
+      const log = await LogService.createLog(normalizedLog);
+
+      // Find or create an alert rule for login attempts
+      let alertRule = await prisma.alertRule.findFirst({
+        where: {
+          ruleName: "Consecutive Failed Login Attempts",
+          tenant: tenant,
+        },
+      });
+
+      if (!alertRule) {
+        alertRule = await prisma.alertRule.create({
+          data: {
+            tenant: tenant,
+            ruleName: "Consecutive Failed Login Attempts",
+            logSource: "API",
+            severity: 9,
+            isActive: true,
+            description: "Alert for consecutive failed login attempts",
+          },
+        });
+      }
+
+      const alert = await prisma.alert.create({
+        data: {
+          tenant: log.tenant,
+          alertRuleId: alertRule.id,
+          logId: log.id,
+          ruleName: alertRule.ruleName,
+          severity: log.severity || 9,
+          description: `Alert triggered for ${log.source} event: ${log.eventType}`,
+        },
+        include: {
+          log: true,
+          alertRule: true,
+        },
+      });
+
+      // Get admin users and send emails
+      const adminUsers = await prisma.user.findMany({
+        where: {
+          role: "ADMIN",
+          status: "ACTIVE",
+          isVerified: true,
+        },
+        select: { email: true },
+      });
+
+      const adminEmails = adminUsers.map((user) => user.email);
+
+      EmailService.sendAlertEmail(adminEmails, alert, log).catch((err) =>
+        console.error("Failed to send alert email:", err)
+      );
+    } catch (error) {
+      console.error("Error in loginAlert:", error);
+    }
   }
 }

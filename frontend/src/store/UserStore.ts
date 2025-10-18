@@ -6,7 +6,7 @@ export interface User {
   userId: string;
   email: string;
   userName: string;
-  role: 'ADMIN' | string;
+  role: 'ADMIN' | 'USER';
   tenant: string;
 }
 

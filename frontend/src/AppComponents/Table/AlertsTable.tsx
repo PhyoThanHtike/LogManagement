@@ -127,7 +127,7 @@ const AlertsTable: React.FC<AlertsTableProps> = ({
       animate="visible"
       className="mt-6"
     >
-      <Card>
+      <Card >
         <CardHeader>
           <CardTitle className="text-xl">{desc} Security Alerts</CardTitle>
           <CardDescription>
@@ -204,6 +204,7 @@ const AlertsTable: React.FC<AlertsTableProps> = ({
                                   "Alert resolved",
                                   "Failed to resolve alert"
                                 );
+                                invalidateAlerts(currentTenant);
                               } catch (err: any) {
                                 toast.error(
                                   err?.message || "Failed to resolve alert"
@@ -241,6 +242,7 @@ const AlertsTable: React.FC<AlertsTableProps> = ({
                                 "Alert deleted",
                                 "Failed to delete alert"
                               );
+                              invalidateAlerts(currentTenant);
                             } catch (err: any) {
                               toast.error(
                                 err?.message || "Failed to delete alert"

@@ -4,7 +4,7 @@ import { useFilterStore } from "@/store/FilterStore";
 import CreateCards from "@/AppComponents/Charts/CreateCards";
 import CreateLogDialog from "@/AppComponents/Dialogs/CreateLogDialog";
 import { CreateDialog } from "@/AppComponents/Dialogs/CreateDialog";
-import { UserPlus, Activity, Siren } from "lucide-react";
+import { UserPlus, Activity, Siren, Code } from "lucide-react";
 import LoadingScreen from "@/Layout/LoadingScreen";
 
 // API Endpoints
@@ -28,8 +28,9 @@ import {
   useAllAlertsQuery,
   useAllUsersQuery,
 } from "@/hooks/useCustomQuery";
+import { CreateSyslog } from "@/AppComponents/Dialogs/CreateSyslog";
 
-// ✅ Lazy load heavy components
+//  Lazy load heavy components
 const AlertRulesTable = React.lazy(() => import("@/AppComponents/Table/AlertRuleTable"));
 const AlertsTable = React.lazy(() => import("@/AppComponents/Table/AlertsTable"));
 const UserTable = React.lazy(() => import("@/AppComponents/Table/UserTable"));
@@ -37,7 +38,7 @@ const UserTable = React.lazy(() => import("@/AppComponents/Table/UserTable"));
 const Management: React.FC = () => {
   const filters = useFilterStore();
 
-  // ✅ Wrap API handlers in useCallback to prevent unnecessary re-renders
+  //  Wrap API handlers in useCallback to prevent unnecessary re-renders
   const handleCreateUser = useCallback(async (userData: any) => await createUser(userData), []);
   const handleCreateAlertRule = useCallback(async (data: any) => await createAlertRule(data), []);
   const handleDeleteAlertRule = useCallback(async (id: string) => await deleteAlertRule(id), []);
@@ -48,15 +49,15 @@ const Management: React.FC = () => {
   const handleDeleteAlerts = useCallback(async (id: string) => await deleteAlert(id), []);
   const handleResolveAlerts = useCallback(async (id: string) => await resolveAlert(id), []);
 
-  // ✅ Queries
+  //  Queries
   const { data: alertRuleData, isLoading: alertRuleLoading } = useAlertRulesQuery();
   const { data: allAlertsData, isLoading: allAlertsLoading } = useAllAlertsQuery();
   const { data: allUsersData, isLoading: allUsersLoading } = useAllUsersQuery();
 
-  // ✅ Compute loading state once
+  //  Compute loading state once
   const isLoading = alertRuleLoading || allAlertsLoading || allUsersLoading;
 
-  // ✅ Memoize props passed to large tables
+  //  Memoize props passed to large tables
   const memoizedProps = useMemo(
     () => ({
       tenant: filters.tenant,
@@ -65,7 +66,7 @@ const Management: React.FC = () => {
     [filters.tenant]
   );
 
-  // ✅ Conditional render
+  //  Conditional render
   if (isLoading) return <LoadingScreen />;
 
   return (
@@ -75,6 +76,7 @@ const Management: React.FC = () => {
         <CreateLogDialog
           trigger={<CreateCards label="Logs" color="blue" icon={Activity} />}
         />
+        <CreateSyslog currentTenant={filters.tenant} trigger={<CreateCards label="SysLogs" color="purple" icon={Code} />} />
         <CreateDialog
           currentTenant={filters.tenant}
           mode="create-user"

@@ -1,7 +1,6 @@
 // workers/otpWorker.js
 import { Worker } from 'bullmq';
-import { redis } from '../../../config/redis-client.js';
-// import { EmailService } from '../services/emailService.js';
+import { redis } from '../../config/redis-client.js';
 import { EmailService } from '../../services/emailService.js';
 
 export const otpWorker = new Worker('otpQueue', 

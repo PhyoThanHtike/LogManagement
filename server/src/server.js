@@ -1,45 +1,67 @@
 // server.js
-import express from 'express';
-import cors from 'cors';
-import helmet from 'helmet';
-import morgan from 'morgan';
-import dotenv from 'dotenv';
-import authRoutes from './routes/auth.route.js';
-import adminRoutes from './routes/admin.route.js';
-import userRoutes from './routes/user.route.js';
-import { limiter } from './middleware/rate-limiter.js';
+import express from "express";
+import cors from "cors";
+import helmet from "helmet";
+import morgan from "morgan";
+import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
+import authRoutes from "./routes/auth.route.js";
+import adminRoutes from "./routes/admin.route.js";
+import userRoutes from "./routes/user.route.js";
+import { limiter } from "./middleware/rate-limiter.js";
+import path from "path";
+import { fileURLToPath } from "url";
 
 dotenv.config();
-const PORT = process.env.PORT || 3000;
 
 const app = express();
+const PORT = process.env.PORT || 3000;
+const NODE_ENV = process.env.NODE_ENV || "development";
+
+// For resolving paths when deploying
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // ---------------- HTTP MIDDLEWARE ----------------
 app.use(helmet());
-app.use(cors({
-  origin: "http://localhost:5173",
-  credentials: true,
-  allowedHeaders: ['Content-Type', 'Authorization']
-}));
-app.use(morgan('dev'))
-   .use(express.json())
-   .use(limiter)
-   .use(cookieParser());
+app.use(
+  cors({
+    origin:
+      NODE_ENV === "production"
+        ? process.env.CLIENT_URL // e.g., "https://your-frontend.vercel.app"
+        : "http://localhost:5173",
+    credentials: true,
+    allowedHeaders: ["Content-Type", "Authorization"],
+  })
+);
+app.use(morgan(NODE_ENV === "production" ? "combined" : "dev"));
+app.use(express.json());
+app.use(cookieParser());
+app.use(limiter);
 
 // ---------------- ROUTES ----------------
 app.use("/api/auth", authRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/user", userRoutes);
 
+// ---------------- STATIC FRONTEND (optional) ----------------
+// When you deploy your frontend build later, uncomment this block:
+if (NODE_ENV === "production") {
+  const clientPath = path.join(__dirname, "client", "dist"); // adjust if needed
+  app.use(express.static(clientPath));
+
+  app.get("*", (_, res) => {
+    res.sendFile(path.join(clientPath, "index.html"));
+  });
+}
+
 // ---------------- HTTP SERVER ----------------
 const server = app.listen(PORT, () => {
-  console.log(`✅ HTTP server running on port ${PORT}`);
+  console.log(`✅ Server running on port ${PORT} in ${NODE_ENV} mode`);
 });
 
-// graceful shutdown (optional)
-process.on('SIGINT', () => {
-  console.log('Shutting down HTTP server...');
+// Graceful shutdown (optional but good practice)
+process.on("SIGINT", () => {
+  console.log("Shutting down server...");
   server.close(() => process.exit(0));
 });
-
