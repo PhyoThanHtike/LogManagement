@@ -25,17 +25,42 @@ const __dirname = path.dirname(__filename);
 // ---------------- HTTP MIDDLEWARE ----------------
 app.use(helmet());
 
+// Add this BEFORE app.use(cors(...))
+console.log('🔧 CORS Configuration:');
+console.log('NODE_ENV:', NODE_ENV);
+console.log('CLIENT_URL:', process.env.CLIENT_URL);
+
 app.use(
   cors({
-    origin:
-      NODE_ENV === "production"
+    origin: function (origin, callback) {
+      const allowedOrigins = NODE_ENV === "production"
         ? [
-            process.env.CLIENT_URL, // Your Vercel frontend
-            "https://log-management-steel.vercel.app",
-          ]
-        : ["http://localhost:5173", "http://localhost:5174"],
+            process.env.CLIENT_URL,
+            'https://log-management-steel.vercel.app',
+          ].filter(Boolean) // Remove undefined values
+        : [
+            'http://localhost:5173',
+            'http://localhost:5174',
+            'http://localhost:3000'
+          ];
+
+      console.log('📍 Request origin:', origin);
+      console.log('✅ Allowed origins:', allowedOrigins);
+
+      // Allow requests with no origin (like mobile apps, Postman, etc.)
+      if (!origin) return callback(null, true);
+      
+      if (allowedOrigins.indexOf(origin) !== -1) {
+        callback(null, true);
+      } else {
+        console.error('❌ Origin not allowed:', origin);
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
     credentials: true,
-    allowedHeaders: ["Content-Type", "Authorization"],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    optionsSuccessStatus: 200
   })
 );
 app.use(morgan(NODE_ENV === "production" ? "combined" : "dev"));
@@ -48,20 +73,20 @@ app.use("/api/auth", authRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/user", userRoutes);
 
-// // ---------------- STATIC FRONTEND ----------------
-// if (NODE_ENV === "production") {
-//   const clientPath = path.join(__dirname, "client", "dist"); // adjust if needed
-//   app.use(express.static(clientPath));
-
-//   app.get("*", (_, res) => {
-//     res.sendFile(path.join(clientPath, "index.html"));
-//   });
-// }
-
 // ---------------- HTTP SERVER ----------------
 // Health check endpoint for Render
 app.get("/health", (req, res) => {
   res.status(200).json({ status: "ok", timestamp: new Date().toISOString() });
+});
+
+// Add this route AFTER your CORS middleware
+app.get('/api/debug/cors', (req, res) => {
+  res.json({
+    nodeEnv: process.env.NODE_ENV,
+    clientUrl: process.env.CLIENT_URL,
+    origin: req.headers.origin,
+    host: req.headers.host,
+  });
 });
 
 const server = app.listen(PORT, () => {
