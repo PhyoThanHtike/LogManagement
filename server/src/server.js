@@ -1,4 +1,3 @@
-// server.js
 import express from "express";
 import cors from "cors";
 import helmet from "helmet";
@@ -9,8 +8,6 @@ import authRoutes from "./routes/auth.route.js";
 import adminRoutes from "./routes/admin.route.js";
 import userRoutes from "./routes/user.route.js";
 import { limiter } from "./middleware/rate-limiter.js";
-import path from "path";
-import { fileURLToPath } from "url";
 
 dotenv.config();
 
@@ -18,18 +15,13 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const NODE_ENV = process.env.NODE_ENV || "development";
 
-// For resolving paths when deploying
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-// ---------------- HTTP MIDDLEWARE ----------------
-app.use(helmet());
-
-// Add this BEFORE app.use(cors(...))
+// ---------------- CORS LOGGING ----------------
 console.log('🔧 CORS Configuration:');
 console.log('NODE_ENV:', NODE_ENV);
 console.log('CLIENT_URL:', process.env.CLIENT_URL);
 
+// ---------------- HTTP MIDDLEWARE ----------------
+app.use(helmet());
 app.use(
   cors({
     origin: function (origin, callback) {
@@ -37,7 +29,7 @@ app.use(
         ? [
             process.env.CLIENT_URL,
             'https://log-management-steel.vercel.app',
-          ].filter(Boolean) // Remove undefined values
+          ].filter(Boolean)
         : [
             'http://localhost:5173',
             'http://localhost:5174',
@@ -47,7 +39,6 @@ app.use(
       console.log('📍 Request origin:', origin);
       console.log('✅ Allowed origins:', allowedOrigins);
 
-      // Allow requests with no origin (like mobile apps, Postman, etc.)
       if (!origin) return callback(null, true);
       
       if (allowedOrigins.indexOf(origin) !== -1) {
@@ -68,18 +59,16 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(limiter);
 
-// ---------------- ROUTES ----------------
-app.use("/api/auth", authRoutes);
-app.use("/api/admin", adminRoutes);
-app.use("/api/user", userRoutes);
-
-// ---------------- HTTP SERVER ----------------
-// Health check endpoint for Render
+// ---------------- HEALTH CHECK (BEFORE ROUTES) ----------------
 app.get("/health", (req, res) => {
-  res.status(200).json({ status: "ok", timestamp: new Date().toISOString() });
+  res.status(200).json({ 
+    status: "ok", 
+    timestamp: new Date().toISOString(),
+    env: NODE_ENV
+  });
 });
 
-// Add this route AFTER your CORS middleware
+// ---------------- DEBUG ENDPOINT ----------------
 app.get('/api/debug/cors', (req, res) => {
   res.json({
     nodeEnv: process.env.NODE_ENV,
@@ -89,12 +78,28 @@ app.get('/api/debug/cors', (req, res) => {
   });
 });
 
+// ---------------- ROUTES ----------------
+app.use("/api/auth", authRoutes);
+app.use("/api/admin", adminRoutes);
+app.use("/api/user", userRoutes);
+
+// ---------------- 404 HANDLER ----------------
+app.use((req, res) => {
+  res.status(404).json({ error: 'Route not found' });
+});
+
+// ---------------- HTTP SERVER ----------------
 const server = app.listen(PORT, () => {
   console.log(`✅ Server running on port ${PORT} in ${NODE_ENV} mode`);
 });
 
-// Graceful shutdown (optional but good practice)
+// Graceful shutdown
 process.on("SIGINT", () => {
+  console.log("Shutting down server...");
+  server.close(() => process.exit(0));
+});
+
+process.on("SIGTERM", () => {
   console.log("Shutting down server...");
   server.close(() => process.exit(0));
 });
