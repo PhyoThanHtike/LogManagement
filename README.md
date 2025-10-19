@@ -58,7 +58,6 @@
 - ✅ Advanced filtering (severity, source, tenant, time range)
 - ✅ Full-text search capabilities
 - ✅ Log aggregation and statistics
-- ✅ Export functionality (JSON, CSV)
 - ✅ Real-time log streaming
 
 ### 🚨 Alerting System
@@ -70,7 +69,7 @@
 ### 👥 User Management
 - ✅ User registration and profile management
 - ✅ Admin dashboard for user administration
-- ✅ User activity tracking
+- ✅ Role Base Access Control
 - ✅ Account status management
 
 ### 🎨 Modern UI/UX
@@ -84,7 +83,6 @@
 - ✅ Input validation & SQL injection prevention
 - ✅ Redis-based job queue (BullMQ)
 - ✅ Efficient database queries with Prisma ORM
-- ✅ CDN-delivered frontend via Vercel
 
 ---
 
@@ -163,8 +161,8 @@ cd frontend && npm run dev
 Visit `http://localhost:5173` to see the application.
 
 **📖 For detailed setup instructions, see:**
-- **Local Development**: [setup_appliance.md](./setup_appliance.md)
-- **Production Deployment**: [setup_saas.md](./setup_saas.md)
+- **Local Development**: [setup_appliance.md](./docs/setup_appliance.md)
+- **Production Deployment**: [setup_saas.md](./docs/setup_saas.md)
 
 ---
 
@@ -172,10 +170,8 @@ Visit `http://localhost:5173` to see the application.
 
 | Document | Description |
 |----------|-------------|
-| [SETUP_APPLIANCE.md](./SETUP_APPLIANCE.md) | Complete local development setup guide |
-| [SETUP_SAAS.md](./SETUP_SAAS.md) | Production deployment guide (Vercel + Render) |
-| [API Documentation](./docs/API.md) | REST API endpoints and usage |
-| [Contributing Guide](./CONTRIBUTING.md) | How to contribute to the project |
+| [setup_appliance.md](./docs/setup_appliance.md) | Complete local development setup guide |
+| [setup_saas.md](./docs/setup_saas.md) | Production deployment guide (Vercel + Render) |
 
 ---
 
@@ -265,7 +261,7 @@ echo "<134>$(date '+%b %d %H:%M:%S') firewall kernel: DROP SRC=192.168.1.100 DST
 echo "<38>$(date '+%b %d %H:%M:%S') $(hostname) sshd: Failed password for admin" | nc -u localhost 5514
 ```
 
-**For more syslog examples, see [setup_appliance.md](./setup_appliance.md)**
+**For more syslog examples, see [setup_appliance.md](./docs/setup_appliance.md)**
 
 ---
 
@@ -279,7 +275,7 @@ The application is deployed using:
 - **Database**: Neon (serverless PostgreSQL)
 - **Cache/Queue**: Redis Cloud (managed Redis)
 
-**🚀 Full deployment guide**: [SETUP_SAAS.md](./SETUP_SAAS.md)
+**🚀 Full deployment guide**: [setup_saas.md](./docs/setup_saas.md)
 
 ### Deployment Status
 
@@ -364,6 +360,5 @@ For questions, issues, or suggestions:
 
 - **Email**: phyothanhtike.ethan@gmail.com
 - **GitHub Issues**: [Create an issue](https://github.com/PhyoThanHtike/LogManagement/issues)
-- **LinkedIn**: [Your LinkedIn](https://linkedin.com/in/yourprofile)
 
 ---

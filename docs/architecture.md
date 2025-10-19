@@ -8,116 +8,9 @@ A multi-tenant Security Information and Event Management (SIEM) platform that in
 
 ## Architecture Diagram
 
-```
-┌─────────────────────────────────────────────────────────────────────────┐
-│                           LOG SOURCES                                    │
-│  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐ │
-│  │ Firewall │  │   API    │  │CrowdStrike│ │   AWS    │  │  M365/AD │ │
-│  └────┬─────┘  └────┬─────┘  └────┬─────┘  └────┬─────┘  └────┬─────┘ │
-│       │             │             │             │             │        │
-│       │ Syslog      │ HTTP POST   │ Syslog      │ HTTP POST   │ Syslog │
-│       │ UDP:5514    │             │             │             │        │
-└───────┼─────────────┼─────────────┼─────────────┼─────────────┼────────┘
-        │             │             │             │             │
-        └─────────────┼─────────────┴─────────────┼─────────────┘
-                      │                           │
-                      ▼                           ▼
-        ┌─────────────────────────┐ ┌─────────────────────────┐
-        │   SYSLOG LISTENER       │ │    API SERVER           │
-        │   (Node.js - UDP)       │ │   (Express.js)          │
-        │   Port: 5514            │ │   Port: 8080            │
-        │                         │ │                         │
-        │   • Receives UDP msgs   │ │   • REST API            │
-        |                         | |   • Json ingestion      |
-        │   • Normalizes data     │ │   • JWT Auth            │
-        │   • Writes to DB        │ │   • RBAC Middleware     │
-        │   • Triggers alerts     │ │   • Rate Limiting       │
-        └───────────┬─────────────┘ └───────────┬─────────────┘
-                    │                           │
-                    │    ┌──────────────────────┘
-                    │    │
-                    ▼    ▼
-        ┌─────────────────────────────────────────────────┐
-        │         NORMALIZATION ENGINE                    │
-        │   • Parse raw logs                              │
-        │   • Extract common fields (IP, user, severity)  │
-        │   • Map vendor-specific formats                 │
-        │   • Enrich with metadata                        │
-        └────────────────────┬────────────────────────────┘
-                             │
-                             ▼
-        ┌─────────────────────────────────────────────────┐
-        │         POSTGRESQL DATABASE (Neon)              │
-        │  ┌──────────┐  ┌──────────┐  ┌──────────┐      │
-        │  │  Users   │  │   Logs   │  │AlertRules│      │
-        │  │          │  │          │  │          │      │
-        │  │ • ADMIN  │  │ • Tenant │  │ • Tenant │      │
-        │  │ • USER   │  │ • Source │  │ • Source │      │
-        │  │ • Tenant │  │ • Severity  │ • Severity  │      │
-        │  └──────────┘  └──────────┘  └──────────┘      │
-        │  ┌──────────┐  ┌──────────┐                    │
-        │  │ Alerts   │  │OTP Request│                    │
-        │  │          │  │          │                    │
-        │  │ • RuleID │  │ • Email  │                    │
-        │  │ • LogID  │  │ • Code   │                    │
-        │  └──────────┘  └──────────┘                    │
-        └────────────────────┬────────────────────────────┘
-                             │
-                             ▼
-        ┌─────────────────────────────────────────────────┐
-        │         ALERT EVALUATION ENGINE                 │
-        │   • Match logs against alert rules              │
-        │   • Filter by tenant, source, severity          │
-        │   • Create alert records                        │
-        │   • Queue email notifications                   │
-        └────────────────────┬────────────────────────────┘
-                             │
-                             ▼
-        ┌─────────────────────────────────────────────────┐
-        │         REDIS + BULLMQ (Job Queue)              │
-        │  ┌──────────────┐  ┌──────────────┐            │
-        │  │  OTP Queue   │  │ Alert Queue  │            │
-        │  │              │  │              │            │
-        │  │ • Send OTP   │  │ • Send Alert │            │
-        │  │ • Verify     │  │ • Notify     │            │
-        │  └──────────────┘  └──────────────┘            │
-        └────────────────────┬────────────────────────────┘
-                             │
-                             ▼
-        ┌─────────────────────────────────────────────────┐
-        │         BACKGROUND WORKERS                      │
-        │   • OTP Worker (Email verification)             │
-        │   • Alert Worker (Email notifications)          │
-        │   • Uses Resend/Nodemailer for SMTP             │
-        └────────────────────┬────────────────────────────┘
-                             │
-                             ▼
-        ┌─────────────────────────────────────────────────┐
-        │         EMAIL SERVICE                           │
-        │   • Resend API (current)                        │
-        │   • Nodemailer (planned)                        │
-        │   • Templates for OTP, Alerts, Password Reset   │
-        └─────────────────────────────────────────────────┘
-                             │
-                             ▼
-        ┌─────────────────────────────────────────────────┐
-        │         ADMIN EMAILS                            │
-        │   • Alert notifications                         │
-        │   • High-severity events                        │
-        └─────────────────────────────────────────────────┘
 
-┌─────────────────────────────────────────────────────────────────────────┐
-│                         FRONTEND (React + TypeScript)                   │
-│  ┌──────────────┐  ┌──────────────┐  ┌────────────────┐                 │
-│  │ Login/Signup │  │   Dashboard  │  │  Log Viewer    │                 │
-│  │  (JWT Auth)  │  │  (Analytics) │  │  (Query/Search)│                 │
-│  └──────────────┘  └──────────────┘  └────────────────┘                 │
-│  ┌──────────────┐  ┌──────────────┐  ┌────────────────┐                 │
-│  │ Alert Rules  │  │ User Mgmt    │  │ Alert Center   │                 │
-│  │  (ADMIN)     │  │  (ADMIN)     │  │ (Notifications)│                 │
-│  └──────────────┘  └──────────────┘  └────────────────┘                 │
-└─────────────────────────────────────────────────────────────────────────┘
-```
+<img src="./images/Architecture.jpg" alt="Architecture" />
+
 
 ---
 
@@ -202,7 +95,63 @@ A multi-tenant Security Information and Event Management (SIEM) platform that in
 └──────────────────────┘
 ```
 
-### 2. **User Authentication Flow**
+### 2. **Alert Rule Evaluation Flow**
+
+```
+┌─────────────┐
+│  New Log    │
+└──────┬──────┘
+       │
+       ▼
+┌──────────────────────┐
+│ AlertService         │
+│  .checkAlertRules()  │
+└──────┬───────────────┘
+       │
+       │ (1) Fetch all active AlertRules
+       │     WHERE tenant = log.tenant
+       │     AND logSource = log.source
+       │     AND isActive = true
+       │
+       ▼
+┌──────────────────────┐
+│  Filter rules        │
+└──────┬───────────────┘
+       │
+       │ (2) For each matching rule:
+       │     IF log.severity >= rule.severity
+       │
+       ▼
+┌──────────────────────┐
+│  Create Alert        │
+│  • alertRuleId       │
+│  • logId             │
+│  • tenant            │
+│  • severity          │
+│  • isResolved: false │
+└──────┬───────────────┘
+       │
+       │ (3) Return created alerts
+       │
+       ▼
+┌──────────────────────┐
+│  Syslog Listener     │
+│  receives alerts[]   │
+└──────┬───────────────┘
+       │
+       │ (4) Fetch all ADMIN users
+       │     WHERE role = ADMIN
+       │     AND status = ACTIVE
+       │     AND isVerified = true
+       │
+       ▼
+┌──────────────────────┐
+│  Send email to each  │
+│  admin (via BullMQ)  │
+└──────────────────────┘
+```
+
+### 3. **User Authentication Flow**
 
 ```
 ┌─────────────┐
@@ -260,62 +209,6 @@ A multi-tenant Security Information and Event Management (SIEM) platform that in
        ▼
 ┌──────────────────────┐
 │  Return user data    │
-└──────────────────────┘
-```
-
-### 3. **Alert Rule Evaluation Flow**
-
-```
-┌─────────────┐
-│  New Log    │
-└──────┬──────┘
-       │
-       ▼
-┌──────────────────────┐
-│ AlertService         │
-│  .checkAlertRules()  │
-└──────┬───────────────┘
-       │
-       │ (1) Fetch all active AlertRules
-       │     WHERE tenant = log.tenant
-       │     AND logSource = log.source
-       │     AND isActive = true
-       │
-       ▼
-┌──────────────────────┐
-│  Filter rules        │
-└──────┬───────────────┘
-       │
-       │ (2) For each matching rule:
-       │     IF log.severity >= rule.severity
-       │
-       ▼
-┌──────────────────────┐
-│  Create Alert        │
-│  • alertRuleId       │
-│  • logId             │
-│  • tenant            │
-│  • severity          │
-│  • isResolved: false │
-└──────┬───────────────┘
-       │
-       │ (3) Return created alerts
-       │
-       ▼
-┌──────────────────────┐
-│  Syslog Listener     │
-│  receives alerts[]   │
-└──────┬───────────────┘
-       │
-       │ (4) Fetch all ADMIN users
-       │     WHERE role = ADMIN
-       │     AND status = ACTIVE
-       │     AND isVerified = true
-       │
-       ▼
-┌──────────────────────┐
-│  Send email to each  │
-│  admin (via BullMQ)  │
 └──────────────────────┘
 ```
 
@@ -411,8 +304,6 @@ const logs = await prisma.log.findMany({ where: filters });
 - **Cache/Queue**: Redis 7+
 
 ### DevOps
-- **Containerization**: Docker + Docker Compose
-- **Orchestration**: Kubernetes (Helm charts)
 - **CI/CD**: GitHub Actions (planned)
 - **Deployment**:
   - Backend: Render
