@@ -26,7 +26,7 @@
       <p align="center"><strong>Login & Authentication</strong></p>
     </td>
     <td width="33%">
-      <img src="./docs/images/Dashboard1.png" alt="Dashboard" />
+      <img src="./docs/images/Dashboard.png" alt="Dashboard" />
       <p align="center"><strong>Dashboard</strong></p>
     </td>
     <td width="33%">
