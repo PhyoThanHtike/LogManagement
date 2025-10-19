@@ -40,9 +40,6 @@ app.use(
             'http://localhost:3000'
           ];
 
-      // console.log('📍 Request origin:', origin);
-      // console.log('✅ Allowed origins:', allowedOrigins);
-
       if (!origin) return callback(null, true);
       
       if (allowedOrigins.indexOf(origin) !== -1) {

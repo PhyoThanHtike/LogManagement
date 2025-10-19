@@ -241,27 +241,6 @@ enum Tenant {
 |       | Can query logs, view alerts for their tenant      |
 |       | Cannot create users or modify alert rules         |
 
-#### Tenant Filtering Implementation
-
-**Backend Middleware (for USER role):**
-```javascript
-// In getLogs controller
-const user = req.user; // From JWT middleware
-const filters = { tenant: user.tenant }; // Force tenant filter
-
-if (user.role === 'USER') {
-  // Users can only see their own tenant's logs
-  filters.tenant = user.tenant;
-} else if (user.role === 'ADMIN') {
-  // Admins can optionally filter by tenant or see all
-  if (req.query.tenant) {
-    filters.tenant = req.query.tenant;
-  }
-}
-
-const logs = await prisma.log.findMany({ where: filters });
-```
-
 #### Data Isolation Guarantees
 
 1. **User Creation**: Each user is assigned a `tenant` field during signup
@@ -430,26 +409,7 @@ const logs = await prisma.log.findMany({ where: filters });
 
 ## Deployment Architecture
 
-### Development
-```
-Docker Compose (local)
-├── PostgreSQL container
-├── Redis container
-├── Backend (3 processes: HTTP, Syslog, OTP Worker)
-└── Frontend (Vite dev server)
-```
-
-### Production (Cloud)
-```
-Neon (PostgreSQL) ──────┐
-                        │
-Redis Cloud ────────────┼─────> Render (Backend)
-                        │       ├── HTTP API
-                        │       ├── Syslog Listener
-                        │       └── BullMQ Workers
-                        │
-                        └─────> Vercel (Frontend)
-```
+- **Production Deployment**: [setup_saas.md](./setup_saas.md)
 
 ---
 

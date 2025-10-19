@@ -82,6 +82,7 @@ export function normalizeData(tenant, source, payload) {
         out.product = kv.product;
 
         // Map common kvs
+        out.user = kv.user || "Anonymous";
         out.srcIp = kv.ip || kv.src || kv.src_ip;
         out.dstIp = kv.dst || kv.dst_ip;
         out.srcPort = num(kv.spt || kv.src_port);
@@ -93,6 +94,7 @@ export function normalizeData(tenant, source, payload) {
         out.eventType = kv.policy || kv.event || "syslog";
       } else {
         // Structured firewall JSON
+        out.user = payload?.user || "Anonymous";
         out.eventType = payload?.event_type || payload?.eventType || "syslog";
         out.timestamp = parseTimestamp(payload?.["@timestamp"] || payload?.timestamp);
         out.srcIp = payload?.ip || payload?.src_ip;
@@ -119,6 +121,7 @@ export function normalizeData(tenant, source, payload) {
         out.product = kv.product;
 
         // Map common kvs
+        out.user = kv.user || "Anonymous";
         out.srcIp = kv.ip || kv.src || kv.src_ip;
         out.dstIp = kv.dst || kv.dst_ip;
         out.srcPort = num(kv.spt || kv.src_port);
@@ -129,6 +132,7 @@ export function normalizeData(tenant, source, payload) {
         out.eventType = kv.event || "syslog";
       } else {
         // Structured firewall JSON
+        out.user = payload?.user || "Anonymous";
         out.eventType = payload?.event_type || payload?.eventType || "syslog";
         out.timestamp = parseTimestamp(payload?.["@timestamp"] || payload?.timestamp);
         out.srcIp = payload?.ip || payload?.src_ip;

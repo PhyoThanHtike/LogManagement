@@ -84,7 +84,7 @@ jobs:
           path: frontend/dist/
           retention-days: 7
 
-  # Optional: Auto-deploy on push to main
+  # Auto-deploy on push to main
   deploy:
     name: Deploy to Production
     needs: [backend-test, frontend-test]
