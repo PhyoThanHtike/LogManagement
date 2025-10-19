@@ -5,7 +5,7 @@ const MainLayout = () => {
   return (
     <>
       <Navbar />
-      <div>
+      <div className="bg-gray-50 dark:bg-neutral-950">
         <Outlet />
       </div>
     </>

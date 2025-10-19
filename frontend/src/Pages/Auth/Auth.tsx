@@ -116,17 +116,24 @@ const Auth = () => {
   const currentFormData = mode === "login" ? loginData : signUpData;
 
   return (
-    <div
-      className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-r from-green-50 via-purple-50 to-blue-50 
-    dark:from-neutral-800 dark:via-neutral-900 dark:to-neutral-800 transition-colors duration-300"
-    >
+    <div className="min-h-screen flex items-center justify-center p-4 bg-white dark:bg-slate-950 transition-colors duration-300 relative overflow-hidden">
+      {/* Elegant background elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        {/* Top right gradient orb */}
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-emerald-400/20 to-cyan-400/10 rounded-full blur-3xl"></div>
+        {/* Bottom left gradient orb */}
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-tr from-blue-400/20 to-purple-400/10 rounded-full blur-3xl"></div>
+        {/* Center subtle accent */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-br from-slate-100/5 to-slate-100/0 rounded-full blur-3xl dark:from-white/5 dark:to-white/0"></div>
+      </div>
+
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="w-full max-w-md"
+        className="w-full max-w-md relative z-10"
       >
-        <div className="bg-gray-50 dark:bg-stone-900 rounded-2xl shadow-xl overflow-hidden border border-gray-200  p-8 transition-colors duration-300">
+        <div className="bg-gray-50 dark:bg-stone-900 rounded-2xl shadow-xl overflow-hidden border border-gray-200 dark:border-gray-700 p-8 transition-colors duration-300">
           <div className="flex justify-end">
             <ThemeToggle />
           </div>
@@ -137,15 +144,6 @@ const Auth = () => {
             transition={{ type: "spring", stiffness: 300 }}
             className="flex items-center justify-center mb-8"
           >
-            {/* <img
-              src={
-                // user.image
-                "https://www.pngmart.com/files/7/Green-Energy-PNG-Photos.png"
-              }
-              alt="Logo"
-              className="w-12"
-              referrerPolicy="no-referrer"
-            /> */}
             <span className="text-3xl font-bold text-gray-900 dark:text-white">
               <motion.span
                 className="text-green-700 dark:text-emerald-700"
