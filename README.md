@@ -22,15 +22,15 @@
 <table>
   <tr>
     <td width="33%">
-      <img src="./docs/images/login.png" alt="Login Page" />
+      <img src="./docs/images/Login.png" alt="Login Page" />
       <p align="center"><strong>Login & Authentication</strong></p>
     </td>
     <td width="33%">
-      <img src="./docs/images/dashboard1.png" alt="Dashboard" />
+      <img src="./docs/images/Dashboard1.png" alt="Dashboard" />
       <p align="center"><strong>Dashboard</strong></p>
     </td>
     <td width="33%">
-      <img src="./docs/images/management.png" alt="Management" />
+      <img src="./docs/images/Management.png" alt="Management" />
       <p align="center"><strong>Management</strong></p>
     </td>
   </tr>
