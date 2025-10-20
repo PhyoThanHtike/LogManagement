@@ -380,10 +380,10 @@ logger -n localhost -P 5514 -t MyApp "Application started successfully"
 ```bash
 
 # Send firewall log
-echo "<134>fw01 vendor=demo product=ngfw src=10.0.1.10 dst=8.8.8.8 spt=5353 dpt=53 severity=8 proto=udp msg='DNS blocked action=DENY" | nc -u localhost 5514
+echo "<134>fw01 vendor=demo product=ngfw src=10.0.1.10 dst=8.8.8.8 spt=5353 dpt=53 severity=8 proto=udp msg='DNS blocked action=DENY" | nc -u 127.0.0.1 5514
 
 # Send network log
-echo "<190>Aug 20 13:01:02 r1 if=ge-0/0/1 event=link-down src=10.0.1.10 mac=aa:bb:cc:dd:ee:ff reason=carrier-loss action=BLOCK" | nc -u localhost 5514
+echo "<190>Aug 20 13:01:02 r1 if=ge-0/0/1 event=link-down src=10.0.1.10 mac=aa:bb:cc:dd:ee:ff reason=carrier-loss action=BLOCK" | nc -u 127.0.0.1 5514
 ```
 
 ### Verify Logs in the Application
