@@ -1,55 +1,59 @@
+// tests/userRoutes.test.js
 import { jest } from "@jest/globals";
 import request from "supertest";
 import express from "express";
 
-// 🧩 Step 1: Mock BEFORE importing app modules
+// -----------------------------
+// 🧩 Step 1: Mock modules BEFORE importing any app logic
+// -----------------------------
 
 // Mock EmailService first to prevent Resend initialization errors
 jest.unstable_mockModule("../src/services/emailService.js", () => ({
   EmailService: {
     sendOTPEmail: jest.fn().mockResolvedValue({ success: true }),
     sendNotificationEmail: jest.fn().mockResolvedValue({ success: true }),
-    // Add any other methods your app uses
-  }
+  },
 }));
 
+// Mock protectRoute middleware to bypass auth
 jest.unstable_mockModule("../src/middleware/protectRoute.js", () => ({
   protectRoute: (req, res, next) => {
     req.user = { id: 1, name: "Test User", status: "ACTIVE", isVerified: true };
-    next(); // bypass auth
+    next();
   },
 }));
 
+// Mock LogService for both controllers
 jest.unstable_mockModule("../src/services/logService.js", () => ({
   LogService: {
-    getLogsInfinite: jest.fn().mockResolvedValue({
-      hasNextPage: true,
-      nextCursor: "cursor123",
-      prevCursor: null,
-      logs: [
-        { id: 1, message: "User logged in" },
-        { id: 2, message: "User updated profile" },
-      ],
-    }),
-    getLogsSummary: jest.fn().mockResolvedValue({
-      totalLogs: 120,
-      critical: 5,
-      warnings: 10,
-    }),
+    getLogsInfinite: jest.fn(),
+    getLogsSummary: jest.fn(),
   },
 }));
 
-// 🧩 Step 2: Import AFTER mocks are registered
+// Mock query validation middlewares
+jest.unstable_mockModule("../src/middleware/queryValidation.js", () => ({
+  validateLogQueryMiddleware: (req, res, next) => next(),
+  validateTenantQueryMiddleware: (req, res, next) => next(),
+}));
+
+// -----------------------------
+// 🧩 Step 2: Import AFTER mocks are in place
+// -----------------------------
 const { LogService } = await import("../src/services/logService.js");
-const { protectRoute } = await import("../src/middleware/protectRoute.js");
 const userRouter = (await import("../src/routes/user.route.js")).default;
 
-// 🧩 Step 3: Setup test app
+// -----------------------------
+// 🧩 Step 3: Setup Express app
+// -----------------------------
 const app = express();
 app.use(express.json());
 app.use("/", userRouter);
 
-describe("✅ User Routes Tests", () => {
+// -----------------------------
+// 🧩 Step 4: Tests
+// -----------------------------
+describe("✅ User Routes (get-logs, get-summary)", () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
@@ -59,6 +63,16 @@ describe("✅ User Routes Tests", () => {
   // ---------------------------------------------------------------------------
   describe("GET /get-logs", () => {
     it("should return logs successfully", async () => {
+      LogService.getLogsInfinite.mockResolvedValueOnce({
+        hasNextPage: true,
+        nextCursor: "cursor123",
+        prevCursor: null,
+        logs: [
+          { id: 1, message: "User logged in" },
+          { id: 2, message: "User updated profile" },
+        ],
+      });
+
       const res = await request(app).get("/get-logs?limit=2");
 
       expect(res.status).toBe(200);
@@ -85,6 +99,12 @@ describe("✅ User Routes Tests", () => {
   // ---------------------------------------------------------------------------
   describe("GET /get-summary", () => {
     it("should return summary data", async () => {
+      LogService.getLogsSummary.mockResolvedValueOnce({
+        totalLogs: 120,
+        critical: 5,
+        warnings: 10,
+      });
+
       const res = await request(app).get("/get-summary");
 
       expect(res.status).toBe(200);
@@ -106,16 +126,18 @@ describe("✅ User Routes Tests", () => {
   });
 
   // ---------------------------------------------------------------------------
-  // Middleware
+  // Middleware check
   // ---------------------------------------------------------------------------
   describe("Middleware Tests", () => {
     it("should attach user from mock middleware", async () => {
-      const mockReq = {};
-      const mockRes = {};
+      const { protectRoute } = await import("../src/middleware/protectRoute.js");
+      const req = {};
+      const res = {};
       const next = jest.fn();
-      await protectRoute(mockReq, mockRes, next);
-      expect(mockReq.user).toBeDefined();
-      expect(mockReq.user.name).toBe("Test User");
+      await protectRoute(req, res, next);
+
+      expect(req.user).toBeDefined();
+      expect(req.user.name).toBe("Test User");
       expect(next).toHaveBeenCalled();
     });
   });
