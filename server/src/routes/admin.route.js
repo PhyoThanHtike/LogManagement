@@ -19,6 +19,7 @@ import {
   deleteAlert,
   getUsers
 } from "../controllers/admin.controller.js";
+import { validateTenantQueryMiddleware } from "../middleware/queryValidation.js";
 
 const router = express.Router();
 
@@ -31,19 +32,19 @@ router.delete("/logs/:id", deleteLog);
 
 // Alert rule management routes
 router.post("/create-rules", createAlertRule);
-router.get("/alert-rules", getAlertRules);
+router.get("/alert-rules",validateTenantQueryMiddleware, getAlertRules);
 router.put("/alert-rules/:id", updateAlertRule);
 router.delete("/alert-rules/:id", deleteAlertRule);
 
 // Alert management routes
-router.get("/alerts", getAllAlerts);
+router.get("/alerts",validateTenantQueryMiddleware, getAllAlerts);
 router.patch("/alerts/:id/resolve", resolveAlert);
 router.delete("/alerts/:id", deleteAlert);
 
 //User management routes
 router.post("/create-user", createUser);
 router.put('/update-user/:id', updateUser);
-router.get('/users', getUsers);
+router.get('/users',validateTenantQueryMiddleware, getUsers);
 router.delete("/delete-user/:id", deleteUser);
 router.patch('/restrict-user/:id', toggleRestrict);
 

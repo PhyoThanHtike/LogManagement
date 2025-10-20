@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input"; // Add this import
 import {
   Trash2,
   AlertCircle,
@@ -22,13 +23,15 @@ import {
   LogIn,
   ShieldX,
   Ban,
+  Search,
+  X, // Add this import
 } from "lucide-react";
 import CustomAlertDialog from "../Dialogs/CustomAlertDialog";
 import { toast } from "sonner";
 import { invalidateLogsAlerts } from "@/query/queryClient";
 import { useState, useMemo, useCallback, useEffect } from "react";
 
-// Types
+// Types (keep your existing types the same)
 interface Log {
   id: string;
   timestamp: string;
@@ -59,7 +62,7 @@ interface LogsResponse {
   data: Log[];
 }
 
-// Action configuration
+// Action configuration (keep your existing config)
 const ACTION_CONFIG = {
   ALLOW: {
     variant: "success" as const,
@@ -108,7 +111,7 @@ const ACTION_CONFIG = {
   },
 };
 
-// Severity configuration
+// Severity configuration (keep your existing config)
 const SEVERITY_RANGES = [
   {
     range: [0, 2],
@@ -140,7 +143,7 @@ const SEVERITY_RANGES = [
   },
 ];
 
-// Utility functions
+// Utility functions (keep your existing functions)
 const formatDate = (dateString: string) => {
   return new Date(dateString).toLocaleDateString("en-US", {
     year: "numeric",
@@ -199,25 +202,51 @@ const LogsTable = ({
   isLoading = false,
 }: LogsTableProps) => {
   const [visibleRows, setVisibleRows] = useState(INITIAL_ROWS);
+  const [searchQuery, setSearchQuery] = useState("");
 
-  // Reset visible rows when logs change
+  // Reset visible rows and search when logs change
   useEffect(() => {
     setVisibleRows(INITIAL_ROWS);
+    setSearchQuery("");
   }, [logs]);
+
+  // Filter logs based on search query
+  const filteredLogs = useMemo(() => {
+    if (!searchQuery.trim()) return logs;
+
+    const query = searchQuery.toLowerCase().trim();
+    return logs.filter((log) => {
+      return (
+        log.timestamp.toLowerCase().includes(query) ||
+        log.tenant.toLowerCase().includes(query) ||
+        (log.user && log.user.toLowerCase().includes(query)) ||
+        (log.srcIp && log.srcIp.toLowerCase().includes(query)) ||
+        log.source.toLowerCase().includes(query) ||
+        log.eventType.toLowerCase().includes(query) ||
+        (log.action && log.action.toLowerCase().includes(query)) ||
+        (log.severity !== null && log.severity.toString().includes(query))
+      );
+    });
+  }, [logs, searchQuery]);
 
   // Memoize the visible logs to prevent unnecessary recalculations
   const visibleLogs = useMemo(() => {
-    return logs.slice(0, visibleRows);
-  }, [logs, visibleRows]);
+    return filteredLogs.slice(0, visibleRows);
+  }, [filteredLogs, visibleRows]);
 
   // Check if there are more logs to load
   const hasMoreLogs = useMemo(() => {
-    return visibleRows < logs.length;
-  }, [visibleRows, logs.length]);
+    return visibleRows < filteredLogs.length;
+  }, [visibleRows, filteredLogs.length]);
 
   // Handle loading more rows
   const handleLoadMore = useCallback(() => {
     setVisibleRows(prev => prev + LOAD_MORE_ROWS);
+  }, []);
+
+  // Clear search query
+  const handleClearSearch = useCallback(() => {
+    setSearchQuery("");
   }, []);
 
   const handleResultToasts = useCallback((
@@ -248,7 +277,7 @@ const LogsTable = ({
   // Memoize columns configuration
   const columns = useMemo(() => [
     { key: "date", label: "Date" },
-    { key: "tenant", label: "Tenant" }, // Added tenant column
+    { key: "tenant", label: "Tenant" },
     { key: "user", label: "User" },
     { key: "srcIp", label: "IP Address" },
     { key: "source", label: "Source" },
@@ -293,6 +322,48 @@ const LogsTable = ({
       transition={{ duration: 0.3 }}
       className=""
     >
+      {/* Search Bar */}
+      <div className="relative mb-4 max-w-md">
+        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+        <Input
+          type="text"
+          placeholder="Search logs..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="pl-10 pr-10 dark:bg-gray-700"
+        />
+        {searchQuery && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleClearSearch}
+            className="absolute right-1 top-1/2 transform -translate-y-1/2 h-6 w-6 p-0 hover:bg-transparent"
+          >
+            <X className="h-4 w-4" />
+          </Button>
+        )}
+      </div>
+
+      {/* Search Results Info */}
+      {searchQuery && (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-4 text-sm text-muted-foreground"
+        >
+          Found {filteredLogs.length} log{filteredLogs.length !== 1 ? 's' : ''} matching "{searchQuery}"
+          {filteredLogs.length === 0 && (
+            <Button
+              variant="link"
+              onClick={handleClearSearch}
+              className="h-auto p-0 ml-2 text-blue-500"
+            >
+              Clear search
+            </Button>
+          )}
+        </motion.div>
+      )}
+
       <div className="rounded-md border">
         <Table>
           <TableHeader>
@@ -309,7 +380,7 @@ const LogsTable = ({
                   colSpan={columns.length}
                   className="text-center py-8 text-muted-foreground"
                 >
-                  No logs found
+                  {searchQuery ? 'No logs found matching your search' : 'No logs found'}
                 </TableCell>
               </TableRow>
             ) : (
@@ -433,20 +504,21 @@ const LogsTable = ({
             variant="outline"
             className="px-6"
           >
-            View More ({logs.length - visibleRows} remaining)
+            View More ({filteredLogs.length - visibleRows} remaining)
           </Button>
         </motion.div>
       )}
 
       {/* Show message when all logs are loaded */}
-      {!hasMoreLogs && logs.length > INITIAL_ROWS && (
+      {!hasMoreLogs && filteredLogs.length > INITIAL_ROWS && (
         <motion.div 
           className="text-center mt-4 text-muted-foreground text-sm"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.3 }}
         >
-          All logs loaded ({logs.length} total)
+          All logs loaded ({filteredLogs.length} total)
+          {searchQuery && ` matching "${searchQuery}"`}
         </motion.div>
       )}
     </motion.div>

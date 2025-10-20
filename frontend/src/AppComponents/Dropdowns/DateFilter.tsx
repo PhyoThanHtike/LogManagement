@@ -31,53 +31,6 @@ const DateFilter = ({ value, onValueChange, disabled = false }: DateFilterProps)
     }
   };
 
-//   const handleClear = () => {
-//     setDate(undefined);
-//     onValueChange("");
-//   };
-
-//   const presetOptions = [
-//     { value: "", label: "All Dates" },
-//     { value: "today", label: "Today" },
-//     { value: "yesterday", label: "Yesterday" },
-//     { value: "last7days", label: "Last 7 Days" },
-//     { value: "last30days", label: "Last 30 Days" },
-//   ];
-
-//   const handlePresetSelect = (presetValue: string) => {
-//     const today = new Date();
-
-//     switch (presetValue) {
-//       case "":
-//         handleClear();
-//         return;
-//       case "today":
-//         handleDateSelect(today);
-//         break;
-//       case "yesterday":
-//         handleDateSelect(subDays(today, 1));
-//         break;
-//       case "last7days":
-//         // Send formatted range as a string or object
-//         onValueChange(
-//           JSON.stringify({
-//             start: format(subDays(today, 6), "yyyy-MM-dd"),
-//             end: format(today, "yyyy-MM-dd"),
-//           })
-//         );
-//         break;
-//       case "last30days":
-//         onValueChange(
-//           JSON.stringify({
-//             start: format(subDays(today, 29), "yyyy-MM-dd"),
-//             end: format(today, "yyyy-MM-dd"),
-//           })
-//         );
-//         break;
-//       default:
-//         handleDateSelect(today);
-//     }
-//   };
 
   const displayDate = (() => {
     try {
@@ -151,11 +104,11 @@ const DateFilter = ({ value, onValueChange, disabled = false }: DateFilterProps)
       </div> */}
 
       {/* Selected date display */}
-      {value && (
+      {/* {value && (
         <div className="mt-2 text-xs text-gray-500 dark:text-gray-400">
           Selected: {displayDate}
         </div>
-      )}
+      )} */}
     </div>
   );
 };

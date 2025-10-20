@@ -1,5 +1,7 @@
 // seedData.js
-import { LogSources, Tenant, Action } from '@prisma/client';
+import { LogSources, Tenant, Action, Role,Status } from '@prisma/client';
+import bcrypt from 'bcryptjs';
+const hashedPassword = await bcrypt.hash('12345678', 10);
 
 // ---------------------- LOGS ----------------------
 export const seedLogs = [
@@ -244,7 +246,8 @@ export const seedAlerts = [
     ruleName: 'High Severity Firewall Events',
     severity: 8,
     description: 'Firewall blocked a high severity threat',
-    isResolved: false
+    isResolved: false,
+    createdAt: new Date('2025-10-14T11:35:00Z')
   },
   {
     id: 'alert_2',
@@ -254,7 +257,8 @@ export const seedAlerts = [
     ruleName: 'Suspicious Authentication',
     severity: 7,
     description: 'Multiple failed login attempts detected',
-    isResolved: false
+    isResolved: false,
+    createdAt: new Date('2025-10-12T11:35:00Z')
   },
   {
     id: 'alert_3',
@@ -275,7 +279,8 @@ export const seedAlerts = [
     ruleName: 'Unusual Network Traffic',
     severity: 7,
     description: 'Unusual outbound traffic volume detected',
-    isResolved: false
+    isResolved: false,
+    createdAt: new Date('2025-10-16T11:35:00Z')
   },
   {
     id: 'alert_5',
@@ -285,7 +290,8 @@ export const seedAlerts = [
     ruleName: 'API Abuse Detection',
     severity: 8,
     description: 'Unauthorized API activity detected',
-    isResolved: false
+    isResolved: false,
+    createdAt: new Date('2025-10-18T11:35:00Z')
   },
   {
     id: 'alert_6',
@@ -296,7 +302,7 @@ export const seedAlerts = [
     severity: 10,
     description: 'Ransomware behavior blocked and contained',
     isResolved: true,
-    resolvedAt: new Date('2025-09-29T12:00:00Z')
+    resolvedAt: new Date('2025-09-29T12:00:00Z'),
   },
   {
     id: 'alert_7',
@@ -306,7 +312,8 @@ export const seedAlerts = [
     ruleName: 'Suspicious Authentication',
     severity: 8,
     description: 'Root login detected on AWS account',
-    isResolved: false
+    isResolved: false,
+    createdAt: new Date('2025-10-15T11:35:00Z')
   },
   {
     id: 'alert_8',
@@ -316,7 +323,8 @@ export const seedAlerts = [
     ruleName: 'Unusual Network Traffic',
     severity: 10,
     description: 'Privilege escalation attempt detected',
-    isResolved: false
+    isResolved: false,
+    createdAt: new Date('2025-09-03T11:35:00Z')
   },
   {
     id: 'alert_9',
@@ -326,7 +334,8 @@ export const seedAlerts = [
     ruleName: 'API Abuse Detection',
     severity: 9,
     description: 'Brute force API attempts detected',
-    isResolved: false
+    isResolved: false,
+    createdAt: new Date('2025-10-02T11:35:00Z')
   },
   {
     id: 'alert_10',
@@ -337,7 +346,8 @@ export const seedAlerts = [
     severity: 6,
     description: 'Login attempt from disabled account flagged',
     isResolved: true,
-    resolvedAt: new Date('2025-10-14T14:00:00Z')
+    resolvedAt: new Date('2025-10-14T14:00:00Z'),
+    createdAt: new Date('2025-10-14T11:35:00Z')
   },
   {
     id: 'alert_11',
@@ -347,7 +357,8 @@ export const seedAlerts = [
     ruleName: 'High Severity Firewall Events',
     severity: 7,
     description: 'Impossible travel detected in M365 logs',
-    isResolved: false
+    isResolved: false,
+    createdAt: new Date('2025-10-17T11:35:00Z')
   },
   {
     id: 'alert_12',
@@ -358,7 +369,8 @@ export const seedAlerts = [
     severity: 5,
     description: 'VPN connection established outside of business hours',
     isResolved: true,
-    resolvedAt: new Date('2025-10-11T09:00:00Z')
+    resolvedAt: new Date('2025-10-11T09:00:00Z'),
+    createdAt: new Date('2025-10-11T11:35:00Z')
   },
   {
     id: 'alert_13',
@@ -368,7 +380,8 @@ export const seedAlerts = [
     ruleName: 'Malware & Ransomware',
     severity: 9,
     description: 'DDoS attempt detected and mitigated',
-    isResolved: false
+    isResolved: false,
+    createdAt: new Date('2025-10-14T11:35:00Z')
   },
   {
     id: 'alert_14',
@@ -378,7 +391,8 @@ export const seedAlerts = [
     ruleName: 'Unusual Network Traffic',
     severity: 7,
     description: 'Port scan activity detected across subnets',
-    isResolved: false
+    isResolved: false,
+    createdAt: new Date('2025-10-18T11:35:00Z')
   },
   {
     id: 'alert_15',
@@ -389,6 +403,32 @@ export const seedAlerts = [
     severity: 8,
     description: 'Repeated unauthorized API requests blocked',
     isResolved: true,
-    resolvedAt: new Date('2025-09-10T10:30:00Z')
+    resolvedAt: new Date('2025-09-10T10:30:00Z'),
+    createdAt: new Date('2025-10-10T11:35:00Z')
   }
+];
+
+export const seedUsers = [
+  {
+    id: 'user_admin',
+    name: 'admin',
+    email: 'admin@gmail.com',
+    password: hashedPassword,
+    role: Role.ADMIN,
+    tenant: Tenant.TENANT1,
+    status: Status.ACTIVE,
+    isVerified: true,
+    createdAt: new Date(),
+  },
+  {
+    id: 'user_user',
+    name: 'user',
+    email: 'user@gmail.com',
+    password: hashedPassword,
+    role: Role.USER,
+    tenant: Tenant.TENANT2,
+    status: Status.ACTIVE,
+    isVerified: true,
+    createdAt: new Date(),
+  },
 ];

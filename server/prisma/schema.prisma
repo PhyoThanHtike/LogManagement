@@ -52,11 +52,8 @@ model Log {
   url             String?
   httpMethod      String?
   statusCode      String?
-  
-  // Rule info
-  // ruleName        String?
-  // ruleId          String?
-  
+  ruleName    String? 
+
   // Cloud context
   cloudAccountId  String?  @map("cloud_account_id")
   cloudRegion     String?  @map("cloud_region")
@@ -171,3 +168,8 @@ enum Action {
   QUARANTINE
   BLOCK
 }
+
+  // // Rule info
+  // ruleName        String?
+  // ruleId          String?
+  

@@ -1,8 +1,37 @@
 -- CreateEnum
+CREATE TYPE "public"."Role" AS ENUM ('ADMIN', 'USER');
+
+-- CreateEnum
+CREATE TYPE "public"."Tenant" AS ENUM ('TENANT1', 'TENANT2', 'TENANT3', 'TENANT4');
+
+-- CreateEnum
+CREATE TYPE "public"."Status" AS ENUM ('ACTIVE', 'RESTRICTED');
+
+-- CreateEnum
+CREATE TYPE "public"."OTPPurpose" AS ENUM ('REGISTRATION', 'PASSWORD_RESET', 'EMAIL_VERIFICATION');
+
+-- CreateEnum
 CREATE TYPE "public"."LogSources" AS ENUM ('FIREWALL', 'API', 'CROWDSTRIKE', 'AWS', 'M365', 'AD', 'NETWORK');
 
 -- CreateEnum
 CREATE TYPE "public"."Action" AS ENUM ('ALLOW', 'DENY', 'CREATE', 'DELETE', 'UPDATE', 'ALERT', 'LOGIN', 'QUARANTINE', 'BLOCK');
+
+-- CreateTable
+CREATE TABLE "public"."users" (
+    "id" TEXT NOT NULL,
+    "email" TEXT NOT NULL,
+    "password" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "role" "public"."Role" NOT NULL DEFAULT 'USER',
+    "status" "public"."Status" NOT NULL DEFAULT 'ACTIVE',
+    "loginAttempts" INTEGER NOT NULL DEFAULT 0,
+    "tenant" "public"."Tenant" NOT NULL,
+    "isVerified" BOOLEAN NOT NULL DEFAULT false,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "users_pkey" PRIMARY KEY ("id")
+);
 
 -- CreateTable
 CREATE TABLE "public"."logs" (
@@ -27,7 +56,6 @@ CREATE TABLE "public"."logs" (
     "httpMethod" TEXT,
     "statusCode" TEXT,
     "ruleName" TEXT,
-    "ruleId" TEXT,
     "cloud_account_id" TEXT,
     "cloud_region" TEXT,
     "cloud_service" TEXT,
@@ -73,11 +101,19 @@ CREATE TABLE "public"."alerts" (
     CONSTRAINT "alerts_pkey" PRIMARY KEY ("id")
 );
 
--- AddForeignKey
-ALTER TABLE "public"."alerts" ADD CONSTRAINT "alerts_alertRuleId_fkey" FOREIGN KEY ("alertRuleId") REFERENCES "public"."alert_rules"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+-- CreateTable
+CREATE TABLE "public"."otp_requests" (
+    "id" TEXT NOT NULL,
+    "email" TEXT NOT NULL,
+    "otpCode" TEXT NOT NULL,
+    "purpose" "public"."OTPPurpose" NOT NULL,
+    "expiresAt" TIMESTAMP(3) NOT NULL,
+    "attempts" INTEGER NOT NULL DEFAULT 0,
+    "isUsed" BOOLEAN NOT NULL DEFAULT false,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
--- AddForeignKey
-ALTER TABLE "public"."alerts" ADD CONSTRAINT "alerts_logId_fkey" FOREIGN KEY ("logId") REFERENCES "public"."logs"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+    CONSTRAINT "otp_requests_pkey" PRIMARY KEY ("id")
+);
 
--- AddForeignKey
-ALTER TABLE "public"."alerts" ADD CONSTRAINT "alerts_userId_fkey" FOREIGN KEY ("userId") REFERENCES "public"."users"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+-- CreateIndex
+CREATE UNIQUE INDEX "users_email_key" ON "public"."users"("email");

@@ -1,6 +1,6 @@
 // seed.js
 import { PrismaClient } from '@prisma/client';
-import { seedLogs, seedAlertRules, seedAlerts } from './seedData.js';
+import { seedLogs, seedAlertRules, seedAlerts, seedUsers } from './seedData.js';
 
 const prisma = new PrismaClient();
 
@@ -40,6 +40,15 @@ async function main() {
       });
     }
     console.log(`✅ Created ${seedAlerts.length} alerts`);
+    
+        // Seed Alerts
+    console.log('Seeding users...');
+    for (const user of seedUsers) {
+      await prisma.user.create({
+        data: user
+      });
+    }
+    console.log(`✅ Created ${seedUsers.length} users`);
 
     console.log('🎉 Seed completed successfully!');
   } catch (error) {

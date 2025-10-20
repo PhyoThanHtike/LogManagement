@@ -1,5 +1,5 @@
 // middleware/adminAuthorization.js
-import { AuthService } from "../services/authService.js";
+// import { AuthService } from "../services/authService.js";
 
 export const adminAuthorization = async (req, res, next) => {
   try {
