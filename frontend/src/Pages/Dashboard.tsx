@@ -11,7 +11,6 @@ import {
 } from "@/hooks/useCustomQuery";
 import ActionFilter from "@/AppComponents/Dropdowns/ActionFilter";
 import SourceFilter from "@/AppComponents/Dropdowns/SourceFilter";
-import SearchBar from "@/AppComponents/Dropdowns/SearchBar";
 import { Button } from "@/components/ui/button";
 import { RefreshCw, FilterX } from "lucide-react";
 import { useUserStore } from "@/store/UserStore";
