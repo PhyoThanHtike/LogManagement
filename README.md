@@ -252,13 +252,13 @@ The application includes a UDP syslog server for receiving logs from network dev
 logger -n localhost -P 5514 "Test log message"
 
 # Using netcat
-echo "<134>$(date '+%b %d %H:%M:%S') $(hostname) MyApp: Test message" | nc -u localhost 5514
+echo "<134>$(date '+%b %d %H:%M:%S') $(hostname) MyApp: Test message" | nc -u 127.0.0.1 5514
 
 # Simulate firewall logs
-echo "<134>$(date '+%b %d %H:%M:%S') firewall kernel: DROP SRC=192.168.1.100 DST=10.0.0.5" | nc -u localhost 5514
+echo "<134>$(date '+%b %d %H:%M:%S') firewall kernel: DROP SRC=192.168.1.100 DST=10.0.0.5" | nc -u 127.0.0.1 5514
 
 # Simulate authentication logs
-echo "<38>$(date '+%b %d %H:%M:%S') $(hostname) sshd: Failed password for admin" | nc -u localhost 5514
+echo "<38>$(date '+%b %d %H:%M:%S') $(hostname) sshd: Failed password for admin" | nc -u 127.0.0.1 5514
 ```
 
 **For more syslog examples, see [setup_appliance.md](./docs/setup_appliance.md)**
